@@ -1,22 +1,23 @@
 package edu.tulliobuzzi.componenti;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Plugboard extends ComponenteBase{
+public class PannelloControllo extends ComponenteAstratto{
 
-    public Plugboard(String configurazione) {
+    public PannelloControllo(String configurazione) {
         super(configurazione);
     }
 
     @Override
-    public int getLettera(int indice) {
-        return this.configurazione.get(indice);
+    public int avanza(int carattere) {
+        return this.configurazione.get(carattere);
     }
 
-    private ArrayList<Integer> inizializzaPlugboard() {
-        ArrayList<Integer> configurazione = new ArrayList<>(26);
+    private ArrayList<Integer> getConfigurazioneInizializzata() {
+        ArrayList<Integer> configurazione = new ArrayList<>(Collections.nCopies(26, null));
         for (int i = 0; i < 26; i++) {
             configurazione.set(i,i);
         }
@@ -24,8 +25,8 @@ public class Plugboard extends ComponenteBase{
     }
 
     ArrayList<Integer> convertiStringa(String codifica) {
-
-        ArrayList<Integer> configurazione = inizializzaPlugboard();
+        codifica = codifica.toUpperCase();
+        ArrayList<Integer> configurazione = getConfigurazioneInizializzata();
 
         if (codifica == null || codifica.equals("")) {
             return configurazione;
@@ -39,6 +40,7 @@ public class Plugboard extends ComponenteBase{
             if (coppia.length() != 2)
                 return configurazione;
 
+            // Codifica da ASCII a indice
             int c1 = coppia.charAt(0) - 65;
             int c2 = coppia.charAt(1) - 65;
 

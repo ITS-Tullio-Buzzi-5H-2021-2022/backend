@@ -2,14 +2,15 @@ package edu.tulliobuzzi.componenti;
 
 import java.util.ArrayList;
 
-public class Rotore extends ComponenteBase{
-    private String identificatore;
-    private int posizioneRotore;
-    private int posizioneTacca;
-    private int impostazioniAnello;
-    private ArrayList<Integer> configurazioneInversa;
+public class Rotore extends ComponenteAstratto{
 
-    public Rotore(String codifica, String identificatore, int posizioneRotore, int posizioneTacca, int impostazioniAnello) {
+    protected String identificatore;
+    protected int posizioneRotore;
+    protected int posizioneTacca;
+    protected int impostazioniAnello;
+    protected ArrayList<Integer> configurazioneInversa;
+
+    public Rotore(String identificatore, String codifica, int posizioneRotore, int posizioneTacca, int impostazioniAnello) {
         super(codifica);
         configurazioneInversa = invertiConfigurazione(configurazione);
         this.identificatore = identificatore;
@@ -19,52 +20,46 @@ public class Rotore extends ComponenteBase{
     }
 
     @Override
-    public int getLettera(int indice) {
-        return 0;
+    public int avanza(int carattere) {
+        return cifrazione(carattere, this.configurazione);
     }
 
     @Override
-    ArrayList<Integer> convertiStringa(String codifica) {
-        return null;
+    public int arretra(int carattere) {
+        return cifrazione(carattere, this.configurazioneInversa);
     }
 
     public String getIdentificatore() {
         return this.identificatore;
     }
 
-    public int getPosizione() {
+    public int getPosizioneRotore() {
         return this.posizioneRotore;
     }
 
     private ArrayList<Integer> invertiConfigurazione(ArrayList<Integer> configurazione) {
         ArrayList<Integer> inverso = new ArrayList<Integer>();
+        for(int i = 0; i < configurazione.size(); i++)
+            inverso.add(0);
+
         for (int i = 0; i < configurazione.size(); i++) {
-            int forward = wiring[i];
-            inverso[forward] = i;
+            int forward = this.configurazione.get(i);
+            inverso.set(forward, i);
         }
         return inverso;
     }
 
-    private int cifrazione(int k, ArrayList<Integer> configurazione) {
+    private int cifrazione(int carattere, ArrayList<Integer> configurazione) {
         int shift = this.posizioneRotore - this.impostazioniAnello;
-        //return (configurazione[(k + shift + 26) % 26] - shift + 26) % 26;
-        return 0;
+        return (this.configurazione.get((carattere + shift + 26) % 26) - shift + 26) % 26;
     }
 
-    public int forward(int indice) {
-        return cifrazione(c, this.configurazione);
+    public boolean isAtTacca() {
+        return this.posizioneTacca == this.posizioneRotore;
     }
 
-    public int backward(int c) {
-        return cifrazione(c, this.rotorPosition, this.ringSetting, this.backwardWiring);
-    }
-
-    public boolean isAtNotch() {
-        return this.notchPosition == this.rotorPosition;
-    }
-
-    public void turnover() {
-        this.rotorPosition = (this.rotorPosition + 1) % 26;
+    public void ruota() {
+        this.posizioneRotore = (this.posizioneRotore + 1) % 26;
     }
 
 }
