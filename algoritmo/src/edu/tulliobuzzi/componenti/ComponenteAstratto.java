@@ -6,8 +6,6 @@ public abstract class ComponenteAstratto implements Componente {
     protected ArrayList<Integer> configurazione;
 
     public ComponenteAstratto (String codifica){
-        System.out.println(codifica);
-        System.out.println(convertiStringa(codifica));
         this.configurazione = convertiStringa(codifica);
     }
 

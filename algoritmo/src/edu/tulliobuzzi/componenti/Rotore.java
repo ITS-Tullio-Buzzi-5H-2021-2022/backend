@@ -51,7 +51,7 @@ public class Rotore extends ComponenteAstratto{
 
     private int cifrazione(int carattere, ArrayList<Integer> configurazione) {
         int shift = this.posizioneRotore - this.impostazioniAnello;
-        return (this.configurazione.get((carattere + shift + 26) % 26) - shift + 26) % 26;
+        return (configurazione.get((carattere + shift + 26) % 26) - shift + 26) % 26;
     }
 
     public boolean isAtTacca() {

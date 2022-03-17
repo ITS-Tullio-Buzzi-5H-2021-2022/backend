@@ -81,7 +81,7 @@ public class Enigma {
     public String codificaStringa(String input) {
         StringBuilder risultato = new StringBuilder();
         for (int i = 0; i < input.length(); i++) {
-            risultato.append(this.cifrazione(input.charAt(i)));
+            risultato.append(this.codifica(input.charAt(i)));
         }
         return risultato.toString();
     }

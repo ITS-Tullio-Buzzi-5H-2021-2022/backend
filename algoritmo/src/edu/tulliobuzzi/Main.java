@@ -6,32 +6,36 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String inputCharacter = "T";
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < 100; i++)
+            sb.append("A");
+        String inputCharacter = sb.toString();
 
         Enigma enigma1 = new Enigma(
                 FabbricaRiflettori.crea("C"),
                 new Rotore[]{
-                        FabbricaRotori.crea("VII", 0, 0),
-                        FabbricaRotori.crea("I", 0, 0),
-                        FabbricaRotori.crea("II", 0, 0)
+                        FabbricaRotori.crea("I", 0, 1),
+                        FabbricaRotori.crea("II", 0, 2),
+                        FabbricaRotori.crea("III", 0, 3)
                 },
-                new PannelloControllo(""));
+                new PannelloControllo("EF TI"));
 
-        String res = enigma1.codifica(inputCharacter);
+        String res = enigma1.codificaStringa(inputCharacter);
 
         Enigma enigma2 = new Enigma(
                 FabbricaRiflettori.crea("C"),
                 new Rotore[]{
-                        FabbricaRotori.crea("VII", 0, 0),
-                        FabbricaRotori.crea("I", 0, 0),
-                        FabbricaRotori.crea("II", 0, 0)
+                        FabbricaRotori.crea("I", 0, 1),
+                        FabbricaRotori.crea("II", 0, 2),
+                        FabbricaRotori.crea("III", 0, 3)
                 },
-                new PannelloControllo(""));
+                new PannelloControllo("EF TI"));
 
-        String res2 = enigma2.codifica(res);
+        String res2 = enigma2.codificaStringa(res);
+
+        System.out.println("Input: " + inputCharacter);
         System.out.println("Codifica: " + res);
         System.out.println("Decodifica: " + res2);
-        System.out.println("Input: " + inputCharacter);
 
         assert (res2 == inputCharacter);
     }
