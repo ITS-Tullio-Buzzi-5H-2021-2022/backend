@@ -1,39 +1,41 @@
 package edu.tulliobuzzi.componenti;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import edu.tulliobuzzi.Enigma;
 
-public class PannelloControllo extends ComponenteAstratto{
+import java.util.*;
 
+public class PannelloControllo implements Componente{
+    private Map<String, String> configurazione;
+    public PannelloControllo(Map<String, String> configurazione) {
+        this.configurazione = configurazione;
+    }
     public PannelloControllo(String configurazione) {
-        super(configurazione);
+        this.configurazione = convertiStringa(configurazione);
     }
 
     @Override
-    public int avanza(int carattere) {
+    public String avanza(String carattere) {
         return this.configurazione.get(carattere);
     }
 
-    private ArrayList<Integer> getConfigurazioneInizializzata() {
-        ArrayList<Integer> configurazione = new ArrayList<>(Collections.nCopies(26, null));
-        for (int i = 0; i < 26; i++) {
-            configurazione.set(i,i);
+    private static Map<String, String> getConfigurazioneInizializzata() {
+        TreeMap<String, String> configurazione = new TreeMap<>();
+        for(String character : Enigma.ALPHABET) {
+            configurazione.put(character, character);
         }
         return configurazione;
     }
 
-    ArrayList<Integer> convertiStringa(String codifica) {
+    public static Map<String, String> convertiStringa(String codifica) {
         codifica = codifica.toUpperCase();
-        ArrayList<Integer> configurazione = getConfigurazioneInizializzata();
+        Map<String, String> configurazione = PannelloControllo.getConfigurazioneInizializzata();
 
         if (codifica == null || codifica.equals("")) {
             return configurazione;
         }
 
         String[] coppie = codifica.split("[^a-zA-Z]");
-        Set<Integer> caratteriCollegati = new HashSet<>();
+        Set<String> caratteriCollegati = new HashSet<>();
 
         //validazione configurazione
         for (String coppia : coppie) {
@@ -41,8 +43,8 @@ public class PannelloControllo extends ComponenteAstratto{
                 return configurazione;
 
             // Codifica da ASCII a indice
-            int c1 = coppia.charAt(0) - 65;
-            int c2 = coppia.charAt(1) - 65;
+            String c1 = Character.toString(coppia.charAt(0));
+            String c2 = Character.toString(coppia.charAt(1));
 
             if (caratteriCollegati.contains(c1) || caratteriCollegati.contains(c2)) {
                 return configurazione;
@@ -51,8 +53,8 @@ public class PannelloControllo extends ComponenteAstratto{
             caratteriCollegati.add(c1);
             caratteriCollegati.add(c2);
 
-            configurazione.set(c1,c2);
-            configurazione.set(c2,c1);
+            configurazione.put(c1,c2);
+            configurazione.put(c2,c1);
         }
 
         return configurazione;

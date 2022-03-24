@@ -1,31 +1,38 @@
 package edu.tulliobuzzi.componenti;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 
-public class Rotore extends ComponenteAstratto{
+import static edu.tulliobuzzi.Enigma.ALPHABET;
 
-    protected String identificatore;
-    protected int posizioneRotore;
-    protected int posizioneTacca;
-    protected int impostazioniAnello;
-    protected ArrayList<Integer> configurazioneInversa;
+public class Rotore implements Componente {
 
-    public Rotore(String identificatore, String codifica, int posizioneRotore, int posizioneTacca, int impostazioniAnello) {
-        super(codifica);
-        configurazioneInversa = invertiConfigurazione(configurazione);
+    private String identificatore;
+    private int posizioneRotore;
+    private int impostazioniAnello;
+    private int[] posizioniTacca;
+    private Map<String, String> configurazione;
+    private Map<String, String> configurazioneInversa;
+
+    public Rotore(String identificatore, Map<String, String> configurazione, Map<String, String> inversa,
+                  int[] posizioniTacca, int posizioneRotore, int impostazioniAnello) {
+        this.configurazione = configurazione;
+        this.configurazioneInversa = inversa;
         this.identificatore = identificatore;
         this.posizioneRotore = posizioneRotore;
-        this.posizioneTacca = posizioneTacca;
         this.impostazioniAnello = impostazioniAnello;
+        this.posizioniTacca = posizioniTacca;
     }
 
     @Override
-    public int avanza(int carattere) {
+    public String avanza(String carattere) {
         return cifrazione(carattere, this.configurazione);
     }
 
     @Override
-    public int arretra(int carattere) {
+    public String arretra(String carattere) {
         return cifrazione(carattere, this.configurazioneInversa);
     }
 
@@ -37,25 +44,20 @@ public class Rotore extends ComponenteAstratto{
         return this.posizioneRotore;
     }
 
-    private ArrayList<Integer> invertiConfigurazione(ArrayList<Integer> configurazione) {
-        ArrayList<Integer> inverso = new ArrayList<Integer>();
-        for(int i = 0; i < configurazione.size(); i++)
-            inverso.add(0);
 
-        for (int i = 0; i < configurazione.size(); i++) {
-            int forward = this.configurazione.get(i);
-            inverso.set(forward, i);
-        }
-        return inverso;
-    }
-
-    private int cifrazione(int carattere, ArrayList<Integer> configurazione) {
+    private String cifrazione(String carattere, Map<String, String> configurazione) {
         int shift = this.posizioneRotore - this.impostazioniAnello;
-        return (configurazione.get((carattere + shift + 26) % 26) - shift + 26) % 26;
+        String shiftedCharacter = ALPHABET[
+                ((Arrays.binarySearch(ALPHABET, carattere) + shift + ALPHABET.length) % ALPHABET.length - shift + 26) % 26];
+        return configurazione.get(shiftedCharacter);
     }
 
     public boolean isAtTacca() {
-        return this.posizioneTacca == this.posizioneRotore;
+        for (int i : this.posizioniTacca) {
+            if (this.posizioneRotore == i)
+                return true;
+        }
+        return false;
     }
 
     public void ruota() {

@@ -1,26 +1,49 @@
 package edu.tulliobuzzi.componenti;
 
-public class FabbricaRotori {
-    public static Rotore crea(String nome, int posizioneRotore, int posizioneAnello) {
-        switch (nome) {
-            case "I":
-                return new Rotore("I","EKMFLGDQVZNTOWYHXUSPAIBRCJ", posizioneRotore, 16, posizioneAnello);
-            case "II":
-                return new Rotore("II","AJDKSIRUXBLHWTMCQGZNPYFVOE", posizioneRotore, 4, posizioneAnello);
-            case "III":
-                return new Rotore("III","BDFHJLCPRTXVZNYEIWGAKMUSQO", posizioneRotore, 21, posizioneAnello);
-            case "IV":
-                return new Rotore("IV","ESOVPZJAYQUIRHXLNFTGKDCMWB", posizioneRotore, 9, posizioneAnello);
-            case "V":
-                return new Rotore("V","VZBRGITYUPSDNHLXAWMJQOFECK", posizioneRotore, 25, posizioneAnello);
-            case "VI":
-                return new RotoreAvanzato("VI","JPGVOUMFYQBENHZRDKASXLICTW", posizioneRotore, posizioneAnello);
-            case "VII":
-                return new RotoreAvanzato("VII","NZJHGRCXMYSWBOUFAIVLPEKQDT", posizioneRotore, posizioneAnello);
-            case "VIII":
-                return new RotoreAvanzato("VIII","FKQHTLXOCBJSPDZRAMEWNIUYGV", posizioneRotore, posizioneAnello);
-            default:
-                return new Rotore("Identità","ABCDEFGHIJKLMNOPQRSTUVWXYZ", posizioneRotore, 0, posizioneAnello);
+import java.util.Map;
+import java.util.TreeMap;
+
+import static edu.tulliobuzzi.Enigma.ALPHABET;
+
+public enum FabbricaRotori {
+    I(convertiStringa("EKMFLGDQVZNTOWYHXUSPAIBRCJ"), 16),
+    II(convertiStringa("AJDKSIRUXBLHWTMCQGZNPYFVOE"), 4),
+    III(convertiStringa("BDFHJLCPRTXVZNYEIWGAKMUSQO"), 21),
+    IV(convertiStringa("ESOVPZJAYQUIRHXLNFTGKDCMWB"), 9),
+    V(convertiStringa("VZBRGITYUPSDNHLXAWMJQOFECK"), 25),
+    VI(convertiStringa("JPGVOUMFYQBENHZRDKASXLICTW"), 12, 25),
+    VII(convertiStringa("NZJHGRCXMYSWBOUFAIVLPEKQDT"), 12, 25),
+    VIII(convertiStringa("FKQHTLXOCBJSPDZRAMEWNIUYGV"), 12, 25),
+    Default(convertiStringa("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0);
+
+
+    private final Map<String, String> configurazione;
+    private final Map<String, String> configurazioneInversa;
+    private final int[] tacche;
+
+    FabbricaRotori(Map<String, String> configurazione, int... tacche) {
+        this.configurazione = configurazione;
+        this.configurazioneInversa = invertiConfigurazione(configurazione);
+        this.tacche = tacche;
+    }
+
+    public Rotore build(int posizioneRotore, int posizioneAnello) {
+        return new Rotore(this.name(), this.configurazione, this.configurazioneInversa, this.tacche, posizioneRotore, posizioneAnello);
+    }
+
+    private static Map<String, String> convertiStringa(String codifica) {
+        TreeMap<String, String> configurazione = new TreeMap<>();
+        for (int i = 0; i < ALPHABET.length; i++) {
+            configurazione.put(ALPHABET[i], Character.toString(codifica.charAt(i)));
         }
+        return configurazione;
+    }
+
+    private static Map<String, String> invertiConfigurazione(Map<String, String> configurazione) {
+        Map<String, String> configurazioneInversa = new TreeMap<>();
+        for (Map.Entry<String, String> value : configurazione.entrySet()) {
+            configurazioneInversa.put(value.getValue(), value.getKey());
+        }
+        return configurazioneInversa;
     }
 }
