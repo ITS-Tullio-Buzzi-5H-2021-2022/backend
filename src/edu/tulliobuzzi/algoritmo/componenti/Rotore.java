@@ -1,20 +1,18 @@
 package edu.tulliobuzzi.algoritmo.componenti;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.TreeMap;
 
 import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
 public class Rotore implements Componente {
 
-    private String identificatore;
+    private final String identificatore;
+    private final int impostazioniAnello;
+    private final Map<String, String> configurazione;
+    private final Map<String, String> configurazioneInversa;
+    private final int[] posizioniTacca;
     private int posizioneRotore;
-    private int impostazioniAnello;
-    private int[] posizioniTacca;
-    private Map<String, String> configurazione;
-    private Map<String, String> configurazioneInversa;
 
     public Rotore(String identificatore, Map<String, String> configurazione, Map<String, String> inversa,
                   int[] posizioniTacca, int posizioneRotore, int impostazioniAnello) {
@@ -44,11 +42,9 @@ public class Rotore implements Componente {
         return this.posizioneRotore;
     }
 
-
     private String cifrazione(String carattere, Map<String, String> configurazione) {
         int shift = this.posizioneRotore - this.impostazioniAnello;
-        String shiftedCharacter = ALPHABET[
-                ((Arrays.binarySearch(ALPHABET, carattere) + shift + ALPHABET.length) % ALPHABET.length - shift + 26) % 26];
+        String shiftedCharacter = ALPHABET[((Arrays.binarySearch(ALPHABET, carattere) + shift + ALPHABET.length) % ALPHABET.length - shift + 26) % 26];
         return configurazione.get(shiftedCharacter);
     }
 

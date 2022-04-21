@@ -7,7 +7,7 @@ import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
 public class Riflettore implements Componente {
 
-    private Map<String, String> configurazione;
+    private final Map<String, String> configurazione;
 
     public Riflettore(Map<String, String> configurazione) {
         this.configurazione = configurazione;

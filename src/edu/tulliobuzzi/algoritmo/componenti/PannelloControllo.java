@@ -2,25 +2,25 @@ package edu.tulliobuzzi.algoritmo.componenti;
 
 import edu.tulliobuzzi.algoritmo.Enigma;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
-public class PannelloControllo implements Componente{
+public class PannelloControllo implements Componente {
     private Map<String, String> configurazione;
+
     public PannelloControllo(Map<String, String> configurazione) {
         this.configurazione = configurazione;
     }
+
     public PannelloControllo(String configurazione) {
         this.configurazione = convertiStringa(configurazione);
     }
 
-    @Override
-    public String avanza(String carattere) {
-        return this.configurazione.get(carattere);
-    }
-
     private static Map<String, String> getConfigurazioneInizializzata() {
         TreeMap<String, String> configurazione = new TreeMap<>();
-        for(String character : Enigma.ALPHABET) {
+        for (String character : Enigma.ALPHABET) {
             configurazione.put(character, character);
         }
         return configurazione;
@@ -53,10 +53,15 @@ public class PannelloControllo implements Componente{
             caratteriCollegati.add(c1);
             caratteriCollegati.add(c2);
 
-            configurazione.put(c1,c2);
-            configurazione.put(c2,c1);
+            configurazione.put(c1, c2);
+            configurazione.put(c2, c1);
         }
 
         return configurazione;
+    }
+
+    @Override
+    public String avanza(String carattere) {
+        return this.configurazione.get(carattere);
     }
 }

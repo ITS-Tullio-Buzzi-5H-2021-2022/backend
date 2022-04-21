@@ -27,10 +27,6 @@ public enum FabbricaRotori {
         this.tacche = tacche;
     }
 
-    public Rotore build(int posizioneRotore, int posizioneAnello) {
-        return new Rotore(this.name(), this.configurazione, this.configurazioneInversa, this.tacche, posizioneRotore, posizioneAnello);
-    }
-
     private static Map<String, String> convertiStringa(String codifica) {
         TreeMap<String, String> configurazione = new TreeMap<>();
         for (int i = 0; i < ALPHABET.length; i++) {
@@ -45,5 +41,16 @@ public enum FabbricaRotori {
             configurazioneInversa.put(value.getValue(), value.getKey());
         }
         return configurazioneInversa;
+    }
+
+    public Rotore build(int posizioneRotore, int posizioneAnello) {
+        return new Rotore(
+                this.name(),
+                this.configurazione,
+                this.configurazioneInversa,
+                this.tacche,
+                posizioneRotore,
+                posizioneAnello
+        );
     }
 }
