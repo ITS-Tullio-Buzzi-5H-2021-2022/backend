@@ -1,4 +1,4 @@
-package edu.tulliobuzzi.componenti;
+package edu.tulliobuzzi.algoritmo.componenti;
 
 public interface Componente {
     String avanza(String carattere);

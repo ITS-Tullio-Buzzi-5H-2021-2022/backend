@@ -1,11 +1,11 @@
-package edu.tulliobuzzi.componenti;
+package edu.tulliobuzzi.algoritmo.componenti;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static edu.tulliobuzzi.Enigma.ALPHABET;
+import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
 public class Rotore implements Componente {
 

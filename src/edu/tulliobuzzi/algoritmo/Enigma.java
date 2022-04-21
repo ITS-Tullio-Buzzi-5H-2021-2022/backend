@@ -1,8 +1,8 @@
-package edu.tulliobuzzi;
+package edu.tulliobuzzi.algoritmo;
 
-import edu.tulliobuzzi.componenti.PannelloControllo;
-import edu.tulliobuzzi.componenti.Riflettore;
-import edu.tulliobuzzi.componenti.Rotore;
+import edu.tulliobuzzi.algoritmo.componenti.PannelloControllo;
+import edu.tulliobuzzi.algoritmo.componenti.Riflettore;
+import edu.tulliobuzzi.algoritmo.componenti.Rotore;
 
 public class Enigma {
     public static final String[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");

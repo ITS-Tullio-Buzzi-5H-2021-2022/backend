@@ -1,6 +1,6 @@
-package edu.tulliobuzzi.componenti;
+package edu.tulliobuzzi.algoritmo.componenti;
 
-import edu.tulliobuzzi.Enigma;
+import edu.tulliobuzzi.algoritmo.Enigma;
 
 import java.util.*;
 
