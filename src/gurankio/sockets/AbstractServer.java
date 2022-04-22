@@ -44,8 +44,10 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
                         } else {
                             handlers.remove(h);
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace(); // TODO: ???
+                        System.err.println("Removing client.");
+                        handlers.remove(h);
                     }
                 });
             }
