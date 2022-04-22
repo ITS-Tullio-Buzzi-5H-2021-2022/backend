@@ -17,6 +17,8 @@ public class Decryption extends Protocol {
     }
 
     private State receive(ChannelFacade channel, Optional<ServerFacade> server) {
+        server.get().connected().stream().findAny().get().channel().write(null);
+
         // poll for stuff to send, don't actually know how.
         // send it and that's all?
         return this::receive;
