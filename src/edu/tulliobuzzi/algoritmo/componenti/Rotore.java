@@ -1,7 +1,9 @@
 package edu.tulliobuzzi.algoritmo.componenti;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
@@ -43,9 +45,22 @@ public class Rotore implements Componente {
     }
 
     private String cifrazione(String carattere, Map<String, String> configurazione) {
+        ArrayList<Integer> configurazioneInt = new ArrayList<>();
+        for (int i = 0; i < configurazione.size(); i++) {
+            configurazioneInt.add(0);
+        }
+        for (Map.Entry<String, String> entry : configurazione.entrySet()) {
+            configurazioneInt.set(
+                    Arrays.binarySearch(ALPHABET, entry.getKey()),
+                    Arrays.binarySearch(ALPHABET, entry.getValue())
+            );
+        }
+        return ALPHABET[cifrazione(Arrays.binarySearch(ALPHABET, carattere), configurazioneInt)];
+    }
+
+    private int cifrazione(int carattere, ArrayList<Integer> configurazione) {
         int shift = this.posizioneRotore - this.impostazioniAnello;
-        String shiftedCharacter = ALPHABET[((Arrays.binarySearch(ALPHABET, carattere) + shift + ALPHABET.length) % ALPHABET.length - shift + 26) % 26];
-        return configurazione.get(shiftedCharacter);
+        return (configurazione.get((carattere + shift + 26) % 26) - shift + 26) % 26;
     }
 
     public boolean isAtTacca() {
@@ -57,7 +72,11 @@ public class Rotore implements Componente {
     }
 
     public void ruota() {
-        this.posizioneRotore = (this.posizioneRotore + 1) % 26;
+        this.posizioneRotore = (this.posizioneRotore + 1) % ALPHABET.length;
+    }
+
+    public void ruotaIndietro() {
+        this.posizioneRotore = (this.posizioneRotore - 1 + ALPHABET.length) % ALPHABET.length;
     }
 
 }

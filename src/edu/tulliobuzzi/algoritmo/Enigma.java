@@ -28,25 +28,33 @@ public class Enigma {
     }
 
     public void ruota() {
-        // If middle rotor notch - double-stepping
-        if (rotoreCentrale.isAtTacca()) {
+        if(rotoreDestro.isAtTacca()) {
+            if(rotoreCentrale.isAtTacca()) {
+                rotoreSinistro.ruota();
+            }
             rotoreCentrale.ruota();
-            rotoreSinistro.ruota();
         }
-        // If left-rotor notch
-        else if (rotoreDestro.isAtTacca()) {
-            rotoreCentrale.ruota();
+        rotoreDestro.ruota();
+    }
+
+    public void ruotaIndietro() {
+        rotoreDestro.ruotaIndietro();
+
+        if(rotoreDestro.isAtTacca()) {
+            rotoreCentrale.ruotaIndietro();
         }
 
-        // Increment right-most rotor
-        rotoreDestro.ruota();
+        if(rotoreCentrale.isAtTacca()) {
+            rotoreCentrale.ruotaIndietro();
+            rotoreSinistro.ruotaIndietro();
+        }
     }
 
     public String cifrazione(String carattere) {
         this.ruota();
 
         // Plugboard in
-        carattere = this.pannelloControllo.avanza(carattere);
+        carattere = pannelloControllo.avanza(carattere);
 
         // Rotori da destra a sinistra
         carattere = rotoreDestro.avanza(carattere);
@@ -68,14 +76,12 @@ public class Enigma {
     }
 
     public String codifica(String input) {
-        if (input.length() > 1) {
-            StringBuilder risultato = new StringBuilder();
-            for (String carattere : input.split("")) {
-                risultato.append(this.codifica(carattere));
-            }
-            return risultato.toString();
+
+        StringBuilder risultato = new StringBuilder();
+        for (String carattere : input.split("")) {
+            risultato.append(this.cifrazione(carattere));
         }
-        return this.cifrazione(input);
+        return risultato.toString();
     }
 
 }
