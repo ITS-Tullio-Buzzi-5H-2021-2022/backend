@@ -3,6 +3,11 @@ package edu.tulliobuzzi.verticale;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.tulliobuzzi.Main;
+import edu.tulliobuzzi.algoritmo.Enigma;
+import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
+import edu.tulliobuzzi.algoritmo.componenti.FabbricaRotori;
+import edu.tulliobuzzi.algoritmo.componenti.PannelloControllo;
+import edu.tulliobuzzi.algoritmo.componenti.Rotore;
 import gurankio.WebSocket;
 import gurankio.sockets.Server;
 import gurankio.sockets.protocol.ChannelFacade;
@@ -16,10 +21,12 @@ import java.util.Optional;
 
 public class Codifica implements Verticale {
 
+    private static final Gson GSON = new Gson();
+
     private final Thread thread;
 
     public Codifica() throws IOException {
-        thread = new Thread(new Server(4000, Encryption::new));
+        thread = new Thread(new Server(7000, Encryption::new));
         thread.setName("WebSocket Server");
         thread.setDaemon(true);
         thread.start();
@@ -37,12 +44,10 @@ public class Codifica implements Verticale {
 
     static class Encryption extends Protocol {
 
-        private final Gson gson;
-
         private StringBuilder builder;
+        private Enigma enigma;
 
         public Encryption() {
-            gson = new Gson();
             builder = new StringBuilder();
         }
 
@@ -59,36 +64,49 @@ public class Codifica implements Verticale {
             }
 
             String json = WebSocket.decode(buffer.get());
-            // System.out.println(json);
+            System.out.println(json);
 
-            JsonObject packet = gson.fromJson(json, JsonObject.class);
+            JsonObject packet = GSON.fromJson(json, JsonObject.class);
 
             switch (packet.get("type").getAsString()) {
+                case "sync":
+                    if (enigma == null) {
+                        enigma = new Enigma( // TODO: configurazione
+                                FabbricaRiflettori.C.build(),
+                                new Rotore[]{
+                                        FabbricaRotori.I.build(0, 1),
+                                        FabbricaRotori.II.build(0, 2),
+                                        FabbricaRotori.III.build(0, 3)
+                                },
+                                new PannelloControllo("EF TI")
+                        );
+                    }
+                    // TODO: aggiorna
+                    // TODO: hard sync
+                    break;
+
                 case "charToEncode": // 'key pressed'
                     // send to Enigma instance and buffer
                     // reply to frontend with encoded char
                     String character = packet.get("data").getAsString();
 
-                    String encoded = Main.enigma.codifica(character);
+                    String encoded = enigma.codifica(character);
+                    // TODO: get rotation
                     builder.append(encoded);
-                    channel.write(WebSocket.encode(gson.toJson(
-                            new EncodingResult(
-                                    "encodingResult",
-                                    encoded,
-                                    new boolean[]{false, false, false}
-                            ))));
+                    channel.write(WebSocket.encode(GSON.toJson(new EncodingResult(encoded, new boolean[]{false, false, false}))));
                     break;
 
                 case "backspacePressed":
-                    // TODO
+                    builder.deleteCharAt(builder.length() - 1);
+                    enigma.ruotaIndietro();
                     break;
 
                 case "enterPressed": // 'enter'
                     // tell buffer to send message to the other machine
                     try {
-                        System.out.println(builder);
-                        Main.orizzontale.send(builder.toString());
+                        String output = builder.toString();
                         builder = new StringBuilder();
+                        Main.ORIZZONTALE.send(output);
                     } catch (Exception e) { // TODO
                         e.printStackTrace();
                     }
@@ -101,7 +119,9 @@ public class Codifica implements Verticale {
     }
 
     record EncodingResult(String type, String data, boolean[] rotors) {
-        //
+        EncodingResult(String data, boolean[] rotors) {
+            this("encodingResult", data, rotors);
+        }
     }
 
 }

@@ -18,8 +18,8 @@ public enum FabbricaRiflettori {
 
     private static Map<String, String> convertiStringa(String codifica) {
         TreeMap<String, String> configurazione = new TreeMap<>();
-        for (int i = 0; i < ALPHABET.length; i++) {
-            configurazione.put(ALPHABET[i], Character.toString(codifica.charAt(i)));
+        for (int i = 0; i < ALPHABET.size(); i++) {
+            configurazione.put(ALPHABET.get(i), Character.toString(codifica.charAt(i)));
         }
         return configurazione;
     }

@@ -1,32 +1,46 @@
 package edu.tulliobuzzi.orizzontale;
 
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.channels.SocketChannel;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
 public class Codifica implements Orizzontale {
 
-    private final Socket socket;
-    private final DataOutputStream writer;
+    private Socket socket;
 
-    public Codifica() throws IOException {
-        socket = new Socket();
-        socket.connect(new InetSocketAddress("localhost", 5000)); // TODO: "other"
-        writer = new DataOutputStream(socket.getOutputStream());
+    public Codifica() {
+        connect();
     }
 
-    public void send(String string) {
-        System.out.println("-> " + string);
+    private synchronized void connect() {
+        int retry = 1;
+        while (true) {
+            try {
+                socket = new Socket();
+                socket.connect(new InetSocketAddress("localhost", 8000)); // TODO: "other"
+                break;
+            } catch (IOException e) {
+                try {
+                    System.out.printf("Retrying connection to the horizon. (%d)%n", retry);
+                    Thread.onSpinWait();
+                    Thread.sleep((long) Math.min(30 * 1000, 100 * Math.pow(2, retry++)));
+                } catch (InterruptedException i) {
+                    return;
+                }
+            }
+        }
+        System.out.println("Connected to the horizon.");
+    }
+
+    public synchronized void send(String string) throws IOException {
         try { // TODO: check if should capture.
-            writer.write(StandardCharsets.UTF_8.encode(string.trim()).array());
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+            socket.getOutputStream().write(StandardCharsets.UTF_8.encode(string).array());
+            socket.getOutputStream().flush();
+        } catch (SocketException e) {
+            connect();
+            // TODO: send(string);
         }
     }
 

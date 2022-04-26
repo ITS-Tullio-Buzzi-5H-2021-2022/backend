@@ -1,7 +1,6 @@
 package edu.tulliobuzzi.orizzontale;
 
 import edu.tulliobuzzi.Main;
-import gurankio.WebSocket;
 import gurankio.sockets.Server;
 import gurankio.sockets.protocol.ChannelFacade;
 import gurankio.sockets.protocol.Protocol;
@@ -18,7 +17,7 @@ public class Decodifica implements Orizzontale {
     private final Thread thread;
 
     public Decodifica() throws IOException {
-        thread = new Thread(new Server(5000, Decryption::new));
+        thread = new Thread(new Server(8000, Decryption::new));
         thread.setName("Horizon Server");
         thread.setDaemon(true);
         thread.start();
@@ -51,8 +50,7 @@ public class Decodifica implements Orizzontale {
 
             try {
                 String string = String.valueOf(StandardCharsets.UTF_8.decode(buffer.get()));
-                System.out.println(string);
-                Main.verticale.send(string); // TODO: json? o cose, non so se qui o in verticale.
+                Main.VERTICALE.send(string);
             } catch (Exception e) { // TODO
                 e.printStackTrace();
             }

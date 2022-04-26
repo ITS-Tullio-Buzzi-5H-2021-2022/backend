@@ -31,31 +31,24 @@ public class Main {
     // {"type": "textToDecode", "data": "ILSASSOFRASSO", "rotors": ["I", "II", "III"]}
     // {"type": "decodedText", "data": "SASSISTAPAZZO" }
 
-    public static Enigma enigma;
-    public static Verticale verticale;
-    public static Orizzontale orizzontale;
+    public static Verticale VERTICALE;
+    public static Orizzontale ORIZZONTALE;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // TODO: factory
         switch (args[0]) {
             case "encode" -> {
-                orizzontale = new edu.tulliobuzzi.orizzontale.Codifica();
-                verticale = new edu.tulliobuzzi.verticale.Codifica();
+                ORIZZONTALE = new edu.tulliobuzzi.orizzontale.Codifica();
+                VERTICALE = new edu.tulliobuzzi.verticale.Codifica();
             }
             case "decode" -> {
-                orizzontale = new edu.tulliobuzzi.orizzontale.Decodifica();
-                verticale = new edu.tulliobuzzi.verticale.Decodifica();
+                ORIZZONTALE = new edu.tulliobuzzi.orizzontale.Decodifica();
+                VERTICALE = new edu.tulliobuzzi.verticale.Decodifica();
             }
         }
-        enigma = new Enigma(FabbricaRiflettori.C.build(),
-                new Rotore[]{
-                        FabbricaRotori.I.build(0, 1),
-                        FabbricaRotori.II.build(0, 2),
-                        FabbricaRotori.III.build(0, 3)
-                },
-                new PannelloControllo("EF TI"));
 
         while (true) {
+            Thread.onSpinWait();
             Thread.sleep(10_000);
         }
     }

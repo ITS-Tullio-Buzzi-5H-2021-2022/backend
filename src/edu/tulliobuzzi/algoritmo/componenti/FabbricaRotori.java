@@ -1,7 +1,10 @@
 package edu.tulliobuzzi.algoritmo.componenti;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.IntStream;
 
 import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
@@ -16,21 +19,20 @@ public enum FabbricaRotori {
     VIII(convertiStringa("FKQHTLXOCBJSPDZRAMEWNIUYGV"), 12, 25),
     Default(convertiStringa("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0);
 
-
     private final Map<String, String> configurazione;
     private final Map<String, String> configurazioneInversa;
-    private final int[] tacche;
+    private final List<Integer> tacche;
 
-    FabbricaRotori(Map<String, String> configurazione, int... tacche) {
+    FabbricaRotori(Map<String, String> configurazione, Integer... tacche) {
         this.configurazione = configurazione;
         this.configurazioneInversa = invertiConfigurazione(configurazione);
-        this.tacche = tacche;
+        this.tacche = Arrays.stream(tacche).toList();
     }
 
     private static Map<String, String> convertiStringa(String codifica) {
         TreeMap<String, String> configurazione = new TreeMap<>();
-        for (int i = 0; i < ALPHABET.length; i++) {
-            configurazione.put(ALPHABET[i], Character.toString(codifica.charAt(i)));
+        for (int i = 0; i < ALPHABET.size(); i++) {
+            configurazione.put(ALPHABET.get(i), Character.toString(codifica.charAt(i)));
         }
         return configurazione;
     }
