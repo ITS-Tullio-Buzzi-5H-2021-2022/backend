@@ -8,7 +8,7 @@ import edu.tulliobuzzi.algoritmo.componenti.Rotore;
 public class Test {
 
     public static void main(String[] args) {
-        testBackspace();
+        testAlgoritmo();
     }
 
     public static void testAlgoritmo() {
@@ -62,9 +62,10 @@ public class Test {
         String input = enigma1.codifica("ENIGMAISCOOL");
         System.out.println(input);
         String primaCodifica = enigma1.codifica("O");
+        System.out.println(primaCodifica);
         enigma1.ruotaIndietro();
         String secondaCodifica = enigma1.codifica("O");
-
+        System.out.println(secondaCodifica);
         assert(primaCodifica.equals(secondaCodifica));
     }
 

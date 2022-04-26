@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
@@ -45,22 +46,17 @@ public class Rotore implements Componente {
     }
 
     private String cifrazione(String carattere, Map<String, String> configurazione) {
-        ArrayList<Integer> configurazioneInt = new ArrayList<>();
-        for (int i = 0; i < configurazione.size(); i++) {
-            configurazioneInt.add(0);
-        }
-        for (Map.Entry<String, String> entry : configurazione.entrySet()) {
-            configurazioneInt.set(
-                    Arrays.binarySearch(ALPHABET, entry.getKey()),
-                    Arrays.binarySearch(ALPHABET, entry.getValue())
-            );
-        }
-        return ALPHABET[cifrazione(Arrays.binarySearch(ALPHABET, carattere), configurazioneInt)];
-    }
-
-    private int cifrazione(int carattere, ArrayList<Integer> configurazione) {
         int shift = this.posizioneRotore - this.impostazioniAnello;
-        return (configurazione.get((carattere + shift + 26) % 26) - shift + 26) % 26;
+
+        int inputPosition = Arrays.binarySearch(ALPHABET, carattere);
+        int shiftedInputPosition = (inputPosition + shift + ALPHABET.length) % ALPHABET.length;
+        String shiftedInput = ALPHABET[shiftedInputPosition];
+
+        String shiftedOutput = configurazione.get(shiftedInput);
+        int shiftedOutputPosition = Arrays.binarySearch(ALPHABET, shiftedOutput);
+        int outputPosition = (shiftedOutputPosition - shift + ALPHABET.length) % ALPHABET.length;
+
+        return ALPHABET[outputPosition];
     }
 
     public boolean isAtTacca() {
