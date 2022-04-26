@@ -24,14 +24,9 @@ public class Decodifica implements Verticale {
     private static final Gson GSON = new Gson();
 
     private final Server server;
-    private final Thread thread;
 
     public Decodifica() throws IOException {
         server = new Server(9000, Decryption::new);
-        thread = new Thread(server);
-        thread.setName("WebSocket Server");
-        thread.setDaemon(true);
-        thread.start();
     }
 
     @Override
@@ -45,8 +40,13 @@ public class Decodifica implements Verticale {
     }
 
     @Override
+    public void run() {
+        server.run();
+    }
+
+    @Override
     public void close() throws IOException {
-        thread.interrupt();
+        server.close();
     }
 
     static class Decryption extends Protocol {

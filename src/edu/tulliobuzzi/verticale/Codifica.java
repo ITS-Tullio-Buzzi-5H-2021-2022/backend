@@ -23,13 +23,10 @@ public class Codifica implements Verticale {
 
     private static final Gson GSON = new Gson();
 
-    private final Thread thread;
+    private final Server server;
 
     public Codifica() throws IOException {
-        thread = new Thread(new Server(7000, Encryption::new));
-        thread.setName("WebSocket Server");
-        thread.setDaemon(true);
-        thread.start();
+        server = new Server(7000, Encryption::new);
     }
 
     @Override
@@ -38,8 +35,13 @@ public class Codifica implements Verticale {
     }
 
     @Override
+    public void run() {
+        server.run();
+    }
+
+    @Override
     public void close() throws IOException {
-        thread.interrupt();
+        server.close();
     }
 
     static class Encryption extends Protocol {
@@ -91,7 +93,7 @@ public class Codifica implements Verticale {
                     String character = packet.get("data").getAsString();
 
                     String encoded = enigma.codifica(character);
-                    // TODO: get rotation
+                    // TODO: get rotations to send to the frontend
                     builder.append(encoded);
                     channel.write(WebSocket.encode(GSON.toJson(new EncodingResult(encoded, new boolean[]{false, false, false}))));
                     break;

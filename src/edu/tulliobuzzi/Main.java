@@ -18,14 +18,14 @@ public class Main {
     // Trasmissione tipo:
     // Enc:
     // {"type": "rotorFill", "rotors": ["I", "II", "III"]}
-    // TODO: risposta rotorFill?
+    // risposta rotorFill?
     //
-    // TODO: -> {"type": "charToEncode", "data": "A" }
-    // TODO: -> {"type": "encodingResult", "data":"B", "rotors": [true, false, true] }
-    // {"type": "backspacePressed", "data":"Backspace"} TODO: -> {"type": "backspacePressed"}
-    // {"type": "enterPressed","data":"Enter"} / TODO: -> {"type": "enterPressed"}
+    // -> {"type": "charToEncode", "data": "A" }
+    // -> {"type": "encodingResult", "data":"B", "rotors": [true, false, true] }
+    // {"type": "backspacePressed", "data":"Backspace"} {"type": "backspacePressed"}
+    // {"type": "enterPressed","data":"Enter"} / -> {"type": "enterPressed"}
     // Dec:
-    // TODO: invio iniziale delle informazioni sui rotori?
+    // invio iniziale delle informazioni sui rotori?
     //
     // {"type": "encodedText", "data": "ILSASSOFRASSO" }
     // {"type": "textToDecode", "data": "ILSASSOFRASSO", "rotors": ["I", "II", "III"]}
@@ -35,7 +35,7 @@ public class Main {
     public static Orizzontale ORIZZONTALE;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        // TODO: factory
+        // TODO: factory?
         switch (args[0]) {
             case "encode" -> {
                 ORIZZONTALE = new edu.tulliobuzzi.orizzontale.Codifica();
@@ -47,9 +47,6 @@ public class Main {
             }
         }
 
-        while (true) {
-            Thread.onSpinWait();
-            Thread.sleep(10_000);
-        }
+        VERTICALE.run();
     }
 }
