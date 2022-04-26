@@ -1,5 +1,6 @@
 package edu.tulliobuzzi.orizzontale;
 
+import edu.tulliobuzzi.Configuration;
 import edu.tulliobuzzi.Main;
 import gurankio.sockets.Server;
 import gurankio.sockets.protocol.ChannelFacade;
@@ -12,20 +13,20 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class Decodifica implements Orizzontale {
+public class OrizzontaleDecodifica implements Orizzontale {
 
     private final Thread thread;
 
-    public Decodifica() throws IOException {
-        thread = new Thread(new Server(8000, Decryption::new));
+    public OrizzontaleDecodifica() throws IOException {
+        thread = new Thread(new Server(Configuration.HORIZON_PORT, ProtocolloDecodifica::new));
         thread.setName("Horizon Server");
         thread.setDaemon(true);
         thread.start();
     }
 
     @Override
-    public void send(String string) throws Exception {
-        throw new Exception("Not a valid operation.");
+    public void send(String string) throws NotSupportedException {
+        throw new NotSupportedException();
     }
 
     @Override
@@ -33,14 +34,14 @@ public class Decodifica implements Orizzontale {
         thread.interrupt();
     }
 
-    static class Decryption extends Protocol {
+    static class ProtocolloDecodifica extends Protocol {
 
         @Override
         protected State connected() {
             return this::receive;
         }
 
-        private State receive(ChannelFacade channel, Optional<ServerFacade> server) {
+        private State receive(ChannelFacade channel, ServerFacade server) {
             Optional<ByteBuffer> buffer = channel.poll();
 
             if (buffer.isEmpty()) {
@@ -51,7 +52,8 @@ public class Decodifica implements Orizzontale {
             try {
                 String string = String.valueOf(StandardCharsets.UTF_8.decode(buffer.get()));
                 Main.VERTICALE.send(string);
-            } catch (Exception e) { // TODO
+            } catch (Exception e) {
+                // really unlikely.
                 e.printStackTrace();
             }
 

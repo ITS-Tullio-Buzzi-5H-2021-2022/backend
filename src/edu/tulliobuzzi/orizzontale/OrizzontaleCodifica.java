@@ -1,16 +1,18 @@
 package edu.tulliobuzzi.orizzontale;
 
+import edu.tulliobuzzi.Configuration;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
-public class Codifica implements Orizzontale {
+public class OrizzontaleCodifica implements Orizzontale {
 
     private Socket socket;
 
-    public Codifica() {
+    public OrizzontaleCodifica() {
         connect();
     }
 
@@ -19,7 +21,7 @@ public class Codifica implements Orizzontale {
         while (true) {
             try {
                 socket = new Socket();
-                socket.connect(new InetSocketAddress("localhost", 8000)); // TODO: "other"
+                socket.connect(new InetSocketAddress(Configuration.HORIZON_HOST, Configuration.HORIZON_PORT));
                 break;
             } catch (IOException e) {
                 try {
@@ -35,12 +37,12 @@ public class Codifica implements Orizzontale {
     }
 
     public synchronized void send(String string) throws IOException {
-        try { // TODO: check if should capture.
+        try {
             socket.getOutputStream().write(StandardCharsets.UTF_8.encode(string).array());
             socket.getOutputStream().flush();
         } catch (SocketException e) {
             connect();
-            // TODO: send(string);
+            send(string);
         }
     }
 

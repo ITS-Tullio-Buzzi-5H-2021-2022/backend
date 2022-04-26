@@ -2,6 +2,7 @@ package edu.tulliobuzzi.verticale;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import edu.tulliobuzzi.Configuration;
 import edu.tulliobuzzi.Main;
 import edu.tulliobuzzi.algoritmo.Enigma;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
@@ -19,19 +20,19 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-public class Codifica implements Verticale {
+public class VerticaleCodifica implements Verticale {
 
     private static final Gson GSON = new Gson();
 
     private final Server server;
 
-    public Codifica() throws IOException {
-        server = new Server(7000, Encryption::new);
+    public VerticaleCodifica() throws IOException {
+        server = new Server(Configuration.ENC_WEBS_PORT, Encryption::new);
     }
 
     @Override
-    public void send(String string) throws Exception {
-        throw new Exception("Not a valid operation.");
+    public void send(String string) throws NotSupportedException {
+        throw new NotSupportedException();
     }
 
     @Override
@@ -58,7 +59,7 @@ public class Codifica implements Verticale {
             return new WebSocket(this::receive);
         }
 
-        private State receive(ChannelFacade channel, Optional<ServerFacade> server) {
+        private State receive(ChannelFacade channel, ServerFacade server) {
             Optional<ByteBuffer> buffer = channel.poll();
             if (buffer.isEmpty()) {
                 channel.read();
@@ -91,16 +92,15 @@ public class Codifica implements Verticale {
                     // send to Enigma instance and buffer
                     // reply to frontend with encoded char
                     String character = packet.get("data").getAsString();
-
-                    String encoded = enigma.codifica(character);
-                    // TODO: get rotations to send to the frontend
+                    Enigma.Cifrazione encoded = enigma.cifra(character);
                     builder.append(encoded);
-                    channel.write(WebSocket.encode(GSON.toJson(new EncodingResult(encoded, new boolean[]{false, false, false}))));
+                    channel.write(WebSocket.encode(GSON.toJson(new EncodingResult(encoded.cifrata(), encoded.ruotato()))));
                     break;
 
                 case "backspacePressed":
                     builder.deleteCharAt(builder.length() - 1);
                     enigma.ruotaIndietro();
+                    // TODO: discard rotors data as we have no animations.
                     break;
 
                 case "enterPressed": // 'enter'
@@ -109,7 +109,9 @@ public class Codifica implements Verticale {
                         String output = builder.toString();
                         builder = new StringBuilder();
                         Main.ORIZZONTALE.send(output);
-                    } catch (Exception e) { // TODO
+                    } catch (Exception e) {
+                        // really unlikely.
+                        // TODO: feedback would be appreciated.
                         e.printStackTrace();
                     }
                     break;
@@ -120,8 +122,8 @@ public class Codifica implements Verticale {
         }
     }
 
-    record EncodingResult(String type, String data, boolean[] rotors) {
-        EncodingResult(String data, boolean[] rotors) {
+    record EncodingResult(String type, String data, Boolean[] rotors) {
+        EncodingResult(String data, Boolean[] rotors) {
             this("encodingResult", data, rotors);
         }
     }

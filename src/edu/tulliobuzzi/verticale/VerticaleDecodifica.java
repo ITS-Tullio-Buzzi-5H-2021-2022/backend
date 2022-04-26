@@ -2,7 +2,7 @@ package edu.tulliobuzzi.verticale;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import edu.tulliobuzzi.Main;
+import edu.tulliobuzzi.Configuration;
 import edu.tulliobuzzi.algoritmo.Enigma;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRotori;
@@ -17,16 +17,18 @@ import gurankio.sockets.protocol.State;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class Decodifica implements Verticale {
+public class VerticaleDecodifica implements Verticale {
 
     private static final Gson GSON = new Gson();
 
     private final Server server;
 
-    public Decodifica() throws IOException {
-        server = new Server(9000, Decryption::new);
+    public VerticaleDecodifica() throws IOException {
+        server = new Server(Configuration.DEC_WEBS_PORT, Decryption::new);
     }
 
     @Override
@@ -56,7 +58,7 @@ public class Decodifica implements Verticale {
             return new WebSocket(this::receive);
         }
 
-        private State receive(ChannelFacade channel, Optional<ServerFacade> server) {
+        private State receive(ChannelFacade channel, ServerFacade server) {
             Optional<ByteBuffer> buffer = channel.poll();
             if (buffer.isEmpty()) {
                 channel.read();
@@ -83,8 +85,13 @@ public class Decodifica implements Verticale {
                     // send to Enigma instance and buffer
                     // reply to frontend with encoded char
                     String string = packet.get("data").getAsString();
-                    String decoded = enigma.codifica(string);
-                    channel.write(WebSocket.encode(GSON.toJson(new DecodedText(decoded))));
+                    List<Enigma.Cifrazione> decoded = enigma.cifraStringa(string);
+                    // TODO: discarding rotors data as we have no animations
+                    channel.write(WebSocket.encode(GSON.toJson(
+                            new DecodedText(decoded.stream()
+                                    .map(Enigma.Cifrazione::cifrata)
+                                    .collect(Collectors.joining())
+                            ))));
                     break;
             }
 

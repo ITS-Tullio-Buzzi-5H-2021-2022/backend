@@ -12,12 +12,12 @@ public abstract class SubProtocol implements State {
 
     protected abstract State connected();
 
-    protected State then(ChannelFacade channel, Optional<ServerFacade> server) {
+    protected State then(ChannelFacade channel, ServerFacade server) {
         return then.apply(channel, server);
     }
 
     @Override
-    public State apply(ChannelFacade channel, Optional<ServerFacade> server) {
+    public State apply(ChannelFacade channel, ServerFacade server) {
         return connected().apply(channel, server);
     }
 }

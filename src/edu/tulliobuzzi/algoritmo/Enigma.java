@@ -4,6 +4,7 @@ import edu.tulliobuzzi.algoritmo.componenti.PannelloControllo;
 import edu.tulliobuzzi.algoritmo.componenti.Riflettore;
 import edu.tulliobuzzi.algoritmo.componenti.Rotore;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Enigma {
@@ -26,31 +27,47 @@ public class Enigma {
     }
 
     public void aggiornaStato() {
-
+        // TODO: pannello.
     }
 
-    public void ruota() {
-        if (rotoreDestro.isAtTacca()) {
-            if (rotoreCentrale.isAtTacca()) {
+    public Boolean[] ruota() {
+        Boolean[] ruotato = new Boolean[]{false, false, true};
+        if (ruotato[1] = rotoreDestro.isAtTacca()) {
+            if (ruotato[0] = rotoreCentrale.isAtTacca()) {
                 rotoreSinistro.ruota();
             }
             rotoreCentrale.ruota();
         }
         rotoreDestro.ruota();
+        return ruotato;
     }
 
-    public void ruotaIndietro() {
+    public Boolean[] ruotaIndietro() {
+        Boolean[] ruotato = new Boolean[]{false, false, true};
         rotoreDestro.ruotaIndietro();
-        if (rotoreDestro.isAtTacca()) {
+        if (ruotato[1] = rotoreDestro.isAtTacca()) {
             rotoreCentrale.ruotaIndietro();
-            if (rotoreCentrale.isAtTacca()) {
+            if (ruotato[0] = rotoreCentrale.isAtTacca()) {
                 rotoreSinistro.ruotaIndietro();
             }
         }
+        return ruotato;
     }
 
-    public String cifrazione(String carattere) {
-        this.ruota();
+    public record Cifrazione(String cifrata, Boolean[] ruotato) {
+        // Array dei booleani: {Sinistro?, Centrale?, Destro?}
+
+        @Override
+        public String toString() {
+            return "Cifrazione{" +
+                    "cifrata='" + cifrata + '\'' +
+                    ", ruotato=" + Arrays.toString(ruotato) +
+                    '}';
+        }
+    }
+
+    public Cifrazione cifra(String carattere) {
+        Boolean[] ruotato = this.ruota();
 
         // Plugboard in
         carattere = pannelloControllo.avanza(carattere);
@@ -71,15 +88,13 @@ public class Enigma {
         // Plugboard out
         carattere = pannelloControllo.avanza(carattere);
 
-        return carattere;
+        return new Cifrazione(carattere, ruotato);
     }
 
-    public String codifica(String input) {
-        StringBuilder risultato = new StringBuilder();
-        for (String carattere : input.split("")) {
-            risultato.append(this.cifrazione(carattere));
-        }
-        return risultato.toString();
+    public List<Cifrazione> cifraStringa(String input) {
+        return Arrays.stream(input.split(""))
+                .map(this::cifra)
+                .toList();
     }
 
 }

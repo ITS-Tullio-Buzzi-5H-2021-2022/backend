@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,7 +21,7 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
 
     public AbstractServer(Supplier<Protocol> protocol) {
         this.protocol = protocol;
-        this.handlers = new HashMap<>(); // TODO: Concurrent?
+        this.handlers = new ConcurrentHashMap<>();
     }
 
     protected abstract boolean open();
@@ -35,17 +36,17 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
             while (open()) {
                 accept().ifPresent(h -> {
                     handlers.put(h, protocol.get());
-                    handlers.computeIfPresent(h, (ignored, protocol) -> protocol.advance(h, Optional.of(this)));
+                    handlers.computeIfPresent(h, (ignored, protocol) -> protocol.advance(h, this));
                 });
                 select().forEach(h -> {
                     try {
                         if (h.compute()) {
-                            handlers.computeIfPresent(h, (ignored, protocol) -> protocol.advance(h, Optional.of(this)));
+                            handlers.computeIfPresent(h, (ignored, protocol) -> protocol.advance(h, this));
                         } else {
                             handlers.remove(h);
                         }
                     } catch (Exception e) {
-                        e.printStackTrace(); // TODO: ???
+                        e.printStackTrace();
                         System.err.println("Removing client.");
                         handlers.remove(h);
                     }
