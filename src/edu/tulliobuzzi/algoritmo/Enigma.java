@@ -13,9 +13,9 @@ public class Enigma {
     public static final List<String> ALPHABET = List.of("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""));
 
     private final Riflettore riflettore;
-    private final Rotore rotoreSinistro;
-    private final Rotore rotoreCentrale;
-    private final Rotore rotoreDestro;
+    private Rotore rotoreSinistro;
+    private Rotore rotoreCentrale;
+    private Rotore rotoreDestro;
     private final PannelloControllo pannelloControllo;
 
     public Enigma(Riflettore riflettore, Rotore[] rotori, PannelloControllo pannelloControllo) {
@@ -26,8 +26,12 @@ public class Enigma {
         this.pannelloControllo = pannelloControllo;
     }
 
-    public void aggiornaStato() {
-        // TODO: pannello.
+    public void setRotore(int index, Rotore rotore) {
+        switch (index) {
+            case 0 -> rotoreSinistro = rotore;
+            case 1 -> rotoreCentrale = rotore;
+            case 2 -> rotoreDestro = rotore;
+        }
     }
 
     public Boolean[] ruota() {
@@ -54,13 +58,13 @@ public class Enigma {
         return ruotato;
     }
 
-    public record Cifrazione(String cifrata, Boolean[] ruotato) {
+    public record Cifrazione(String cifrato, Boolean[] ruotato) {
         // Array dei booleani: {Sinistro?, Centrale?, Destro?}
 
         @Override
         public String toString() {
             return "Cifrazione{" +
-                    "cifrata='" + cifrata + '\'' +
+                    "cifrato='" + cifrato + '\'' +
                     ", ruotato=" + Arrays.toString(ruotato) +
                     '}';
         }

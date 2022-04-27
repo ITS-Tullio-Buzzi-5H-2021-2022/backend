@@ -1,7 +1,9 @@
 package edu.tulliobuzzi.verticale;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import edu.tulliobuzzi.Configuration;
 import edu.tulliobuzzi.algoritmo.Enigma;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
@@ -20,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class VerticaleDecodifica implements Verticale {
 
@@ -68,31 +71,38 @@ public class VerticaleDecodifica implements Verticale {
             String json = WebSocket.decode(buffer.get());
             System.out.println(json);
 
-            JsonObject packet = GSON.fromJson(json, JsonObject.class);
+            try {
+                JsonObject packet = GSON.fromJson(json, JsonObject.class);
 
-            switch (packet.get("type").getAsString()) {
-                case "textToDecode": // 'key pressed'
-                    Enigma enigma = new Enigma( // TODO: configurazione
-                            FabbricaRiflettori.C.build(),
-                            new Rotore[]{
-                                    FabbricaRotori.I.build(0, 1),
-                                    FabbricaRotori.II.build(0, 2),
-                                    FabbricaRotori.III.build(0, 3)
-                            },
-                            new PannelloControllo("EF TI")
-                    );
+                switch (packet.get("type").getAsString()) {
+                    case "textToDecode": // 'key pressed'
+                        JsonArray rotorsData = packet.get("rotors").getAsJsonArray();
+                        Rotore[] rotors = IntStream.range(0, rotorsData.size())
+                                .mapToObj(i -> rotorsData.get(i).getAsJsonObject())
+                                .map(FabbricaRotori::fromJsonObject)
+                                .toArray(Rotore[]::new);
 
-                    // send to Enigma instance and buffer
-                    // reply to frontend with encoded char
-                    String string = packet.get("data").getAsString();
-                    List<Enigma.Cifrazione> decoded = enigma.cifraStringa(string);
-                    // TODO: discarding rotors data as we have no animations
-                    channel.write(WebSocket.encode(GSON.toJson(
-                            new DecodedText(decoded.stream()
-                                    .map(Enigma.Cifrazione::cifrata)
-                                    .collect(Collectors.joining())
-                            ))));
-                    break;
+                        Enigma enigma = new Enigma(
+                                FabbricaRiflettori.C.build(),
+                                rotors,
+                                new PannelloControllo("EF TI")
+                        );
+
+                        // send to Enigma instance and buffer
+                        // reply to frontend with encoded char
+                        String encodedText = packet.get("data").getAsString();
+                        List<Enigma.Cifrazione> decoded = enigma.cifraStringa(encodedText);
+                        System.out.println(decoded);
+                        String decodedText = decoded.stream()
+                                .map(Enigma.Cifrazione::cifrato)
+                                .collect(Collectors.joining());
+
+                        // TODO: discarding rotors data as we have no animations
+                        channel.write(WebSocket.encode(GSON.toJson(new DecodedText(decodedText))));
+                        break;
+                }
+            } catch (JsonSyntaxException e) {
+                System.err.printf("Invalid packet: %s%n", json);
             }
 
             channel.read();

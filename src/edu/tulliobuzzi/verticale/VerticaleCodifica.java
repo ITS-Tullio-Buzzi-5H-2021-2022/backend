@@ -1,14 +1,13 @@
 package edu.tulliobuzzi.verticale;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import edu.tulliobuzzi.Configuration;
 import edu.tulliobuzzi.Main;
 import edu.tulliobuzzi.algoritmo.Enigma;
-import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRotori;
-import edu.tulliobuzzi.algoritmo.componenti.PannelloControllo;
-import edu.tulliobuzzi.algoritmo.componenti.Rotore;
 import gurankio.WebSocket;
 import gurankio.sockets.Server;
 import gurankio.sockets.protocol.ChannelFacade;
@@ -52,6 +51,7 @@ public class VerticaleCodifica implements Verticale {
 
         public Encryption() {
             builder = new StringBuilder();
+            enigma = Main.configurazioneStandard();
         }
 
         @Override
@@ -69,52 +69,49 @@ public class VerticaleCodifica implements Verticale {
             String json = WebSocket.decode(buffer.get());
             System.out.println(json);
 
-            JsonObject packet = GSON.fromJson(json, JsonObject.class);
+            try {
+                JsonObject packet = GSON.fromJson(json, JsonObject.class);
 
-            switch (packet.get("type").getAsString()) {
-                case "sync":
-                    if (enigma == null) {
-                        enigma = new Enigma( // TODO: configurazione
-                                FabbricaRiflettori.C.build(),
-                                new Rotore[]{
-                                        FabbricaRotori.I.build(0, 1),
-                                        FabbricaRotori.II.build(0, 2),
-                                        FabbricaRotori.III.build(0, 3)
-                                },
-                                new PannelloControllo("EF TI")
-                        );
-                    }
-                    // TODO: aggiorna
-                    // TODO: hard sync
-                    break;
+                switch (packet.get("type").getAsString()) {
+                    case "syncRotor":
+                        JsonArray rotors = packet.get("data").getAsJsonArray();
+                        for (int i = 0; i < rotors.size(); i++) {
+                            if (!rotors.get(i).isJsonNull()) {
+                                enigma.setRotore(i, FabbricaRotori.fromJsonObject(rotors.get(i).getAsJsonObject()));
+                            }
+                        }
+                        break;
 
-                case "charToEncode": // 'key pressed'
-                    // send to Enigma instance and buffer
-                    // reply to frontend with encoded char
-                    String character = packet.get("data").getAsString();
-                    Enigma.Cifrazione encoded = enigma.cifra(character);
-                    builder.append(encoded);
-                    channel.write(WebSocket.encode(GSON.toJson(new EncodingResult(encoded.cifrata(), encoded.ruotato()))));
-                    break;
+                    case "charToEncode": // 'key pressed'
+                        // send to Enigma instance and buffer
+                        // reply to frontend with encoded char
+                        String character = packet.get("data").getAsString();
+                        Enigma.Cifrazione encoded = enigma.cifra(character);
+                        builder.append(encoded.cifrato());
+                        channel.write(WebSocket.encode(GSON.toJson(new EncodingResult(encoded.cifrato(), encoded.ruotato()))));
+                        break;
 
-                case "backspacePressed":
-                    builder.deleteCharAt(builder.length() - 1);
-                    enigma.ruotaIndietro();
-                    // TODO: discard rotors data as we have no animations.
-                    break;
+                    case "backspacePressed":
+                        builder.deleteCharAt(builder.length() - 1);
+                        enigma.ruotaIndietro();
+                        // TODO: discard rotors data as we have no animations.
+                        break;
 
-                case "enterPressed": // 'enter'
-                    // tell buffer to send message to the other machine
-                    try {
-                        String output = builder.toString();
-                        builder = new StringBuilder();
-                        Main.ORIZZONTALE.send(output);
-                    } catch (Exception e) {
-                        // really unlikely.
-                        // TODO: feedback would be appreciated.
-                        e.printStackTrace();
-                    }
-                    break;
+                    case "enterPressed": // 'enter'
+                        // tell buffer to send message to the other machine
+                        try {
+                            String output = builder.toString();
+                            builder = new StringBuilder();
+                            Main.ORIZZONTALE.send(output);
+                        } catch (Exception e) {
+                            // really unlikely.
+                            // TODO: feedback would be appreciated.
+                            e.printStackTrace();
+                        }
+                        break;
+                }
+            } catch (JsonSyntaxException e) {
+                System.err.printf("Invalid packet: %s%n", json);
             }
 
             channel.read();

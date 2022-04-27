@@ -1,10 +1,12 @@
 package edu.tulliobuzzi.algoritmo.componenti;
 
+import com.google.gson.JsonObject;
+import edu.tulliobuzzi.algoritmo.Enigma;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.IntStream;
 
 import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
@@ -27,6 +29,14 @@ public enum FabbricaRotori {
         this.configurazione = configurazione;
         this.configurazioneInversa = invertiConfigurazione(configurazione);
         this.tacche = Arrays.stream(tacche).toList();
+    }
+
+    public static Rotore fromJsonObject(JsonObject rotor) {
+        return FabbricaRotori.valueOf(rotor.get("name").getAsString())
+                .build(
+                        Enigma.ALPHABET.indexOf(rotor.get("pos").getAsString()),
+                        Enigma.ALPHABET.indexOf(rotor.get("ring").getAsString())
+                );
     }
 
     private static Map<String, String> convertiStringa(String codifica) {

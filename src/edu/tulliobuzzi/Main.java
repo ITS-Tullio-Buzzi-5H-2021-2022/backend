@@ -1,5 +1,10 @@
 package edu.tulliobuzzi;
 
+import edu.tulliobuzzi.algoritmo.Enigma;
+import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
+import edu.tulliobuzzi.algoritmo.componenti.FabbricaRotori;
+import edu.tulliobuzzi.algoritmo.componenti.PannelloControllo;
+import edu.tulliobuzzi.algoritmo.componenti.Rotore;
 import edu.tulliobuzzi.orizzontale.Orizzontale;
 import edu.tulliobuzzi.orizzontale.OrizzontaleCodifica;
 import edu.tulliobuzzi.orizzontale.OrizzontaleDecodifica;
@@ -25,7 +30,7 @@ public class Main {
     // invio iniziale delle informazioni sui rotori?
     //
     // {"type": "encodedText", "data": "ILSASSOFRASSO" }
-    // {"type": "textToDecode", "data": "ILSASSOFRASSO", "rotors": ["I", "II", "III"]}
+    // {"type": "textToDecode", "data": "ILSASSOFRASSO", "rotors": [{"I"}, {"II"}, {"III"}]}
     // {"type": "decodedText", "data": "SASSISTAPAZZO" }
 
     public static Orizzontale ORIZZONTALE;
@@ -53,5 +58,17 @@ public class Main {
             ORIZZONTALE.close();
             VERTICALE.close();
         }
+    }
+
+    public static Enigma configurazioneStandard() {
+        return new Enigma(
+                FabbricaRiflettori.C.build(),
+                new Rotore[]{
+                        FabbricaRotori.I.build(0, 0),
+                        FabbricaRotori.II.build(0, 0),
+                        FabbricaRotori.III.build(0, 0)
+                },
+                new PannelloControllo("EF TI")
+        );
     }
 }

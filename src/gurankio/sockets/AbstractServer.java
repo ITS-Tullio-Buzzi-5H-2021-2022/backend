@@ -5,10 +5,7 @@ import gurankio.sockets.protocol.ServerFacade;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -28,7 +25,7 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
 
     protected abstract Optional<H> accept() throws IOException;
 
-    protected abstract Stream<H> select() throws IOException;
+    protected abstract List<H> select() throws IOException;
 
     @Override
     public void run() {
@@ -38,7 +35,7 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
                     handlers.put(h, protocol.get());
                     handlers.computeIfPresent(h, (ignored, protocol) -> protocol.advance(h, this));
                 });
-                select().forEach(h -> {
+                for (H h : select()) {
                     try {
                         if (h.compute()) {
                             handlers.computeIfPresent(h, (ignored, protocol) -> protocol.advance(h, this));
@@ -49,8 +46,9 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
                         e.printStackTrace();
                         System.err.println("Removing client.");
                         handlers.remove(h);
+                        break;
                     }
-                });
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

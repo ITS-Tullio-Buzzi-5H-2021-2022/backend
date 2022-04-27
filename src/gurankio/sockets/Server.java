@@ -7,9 +7,9 @@ import java.net.InetSocketAddress;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public class Server extends AbstractServer<Handler> {
 
@@ -36,13 +36,12 @@ public class Server extends AbstractServer<Handler> {
         else return Optional.empty();
     }
 
-    protected Stream<Handler> select() throws IOException {
+    protected List<Handler> select() throws IOException {
         selector.select(250);
-        Stream<Handler> selected = selector.selectedKeys()
+        List<Handler> selected = selector.selectedKeys()
                 .stream()
                 .map(selectionKey -> (Handler) selectionKey.attachment())
-                .toList() // handlers should be buffered.
-                .stream();
+                .toList();
         selector.selectedKeys().clear();
         return selected;
     }

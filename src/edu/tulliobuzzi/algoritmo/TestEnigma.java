@@ -32,7 +32,7 @@ public class TestEnigma {
                 new PannelloControllo("EF TI"));
 
         List<Enigma.Cifrazione> results = enigma1.cifraStringa(inputCharacter);
-        String res = results.stream().map(Enigma.Cifrazione::cifrata).collect(Collectors.joining());
+        String res = results.stream().map(Enigma.Cifrazione::cifrato).collect(Collectors.joining());
 
         Enigma enigma2 = new Enigma(
                 FabbricaRiflettori.C.build(),
@@ -44,7 +44,7 @@ public class TestEnigma {
                 new PannelloControllo("EF TI"));
 
         List<Enigma.Cifrazione> results2 = enigma2.cifraStringa(res);
-        String res2 = results2.stream().map(Enigma.Cifrazione::cifrata).collect(Collectors.joining());
+        String res2 = results2.stream().map(Enigma.Cifrazione::cifrato).collect(Collectors.joining());
 
         System.out.println("Input: " + inputCharacter);
         System.out.println("Codifica: " + res);
