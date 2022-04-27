@@ -47,11 +47,12 @@ public class VerticaleCodifica implements Verticale {
     static class Encryption extends Protocol {
 
         private StringBuilder builder;
-        private Enigma enigma;
+        private final Enigma enigma;
 
         public Encryption() {
             builder = new StringBuilder();
             enigma = Main.configurazioneStandard();
+            System.out.println("Front-end connected.");
         }
 
         @Override
@@ -67,10 +68,10 @@ public class VerticaleCodifica implements Verticale {
             }
 
             String json = WebSocket.decode(buffer.get());
-            System.out.println(json);
 
             try {
                 JsonObject packet = GSON.fromJson(json, JsonObject.class);
+                System.out.println(packet);
 
                 switch (packet.get("type").getAsString()) {
                     case "syncRotor":
@@ -101,6 +102,7 @@ public class VerticaleCodifica implements Verticale {
                         // tell buffer to send message to the other machine
                         try {
                             String output = builder.toString();
+                            System.out.println("-> " + output);
                             builder = new StringBuilder();
                             Main.ORIZZONTALE.send(output);
                         } catch (Exception e) {

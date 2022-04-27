@@ -30,7 +30,7 @@ public class OrizzontaleDecodifica implements Orizzontale {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         thread.interrupt();
     }
 
@@ -43,7 +43,6 @@ public class OrizzontaleDecodifica implements Orizzontale {
 
         private State receive(ChannelFacade channel, ServerFacade server) {
             Optional<ByteBuffer> buffer = channel.poll();
-
             if (buffer.isEmpty()) {
                 channel.read();
                 return this::receive;
@@ -51,6 +50,7 @@ public class OrizzontaleDecodifica implements Orizzontale {
 
             try {
                 String string = String.valueOf(StandardCharsets.UTF_8.decode(buffer.get()));
+                System.out.println("-> " + string);
                 Main.VERTICALE.send(string);
             } catch (Exception e) {
                 // really unlikely.

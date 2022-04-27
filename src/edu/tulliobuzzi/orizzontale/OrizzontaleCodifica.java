@@ -3,6 +3,7 @@ package edu.tulliobuzzi.orizzontale;
 import edu.tulliobuzzi.Configuration;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -38,9 +39,11 @@ public class OrizzontaleCodifica implements Orizzontale {
 
     public synchronized void send(String string) throws IOException {
         try {
-            socket.getOutputStream().write(StandardCharsets.UTF_8.encode(string).array());
-            socket.getOutputStream().flush();
+            OutputStream out = socket.getOutputStream();
+            out.write(StandardCharsets.UTF_8.encode(string).array());
+            out.flush();
         } catch (SocketException e) {
+            System.out.println("Connection to the horizon failed.");
             connect();
             send(string);
         }

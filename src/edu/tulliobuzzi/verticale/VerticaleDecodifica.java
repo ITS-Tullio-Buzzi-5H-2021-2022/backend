@@ -56,6 +56,10 @@ public class VerticaleDecodifica implements Verticale {
 
     static class Decryption extends Protocol {
 
+        public Decryption() {
+            System.out.println("Front-end connected.");
+        }
+
         @Override
         protected State connected() {
             return new WebSocket(this::receive);
@@ -69,19 +73,18 @@ public class VerticaleDecodifica implements Verticale {
             }
 
             String json = WebSocket.decode(buffer.get());
-            System.out.println(json);
 
             try {
                 JsonObject packet = GSON.fromJson(json, JsonObject.class);
+                System.out.println(packet);
 
                 switch (packet.get("type").getAsString()) {
-                    case "textToDecode": // 'key pressed'
+                    case "textToDecode" -> { // 'key pressed'
                         JsonArray rotorsData = packet.get("rotors").getAsJsonArray();
                         Rotore[] rotors = IntStream.range(0, rotorsData.size())
                                 .mapToObj(i -> rotorsData.get(i).getAsJsonObject())
                                 .map(FabbricaRotori::fromJsonObject)
                                 .toArray(Rotore[]::new);
-
                         Enigma enigma = new Enigma(
                                 FabbricaRiflettori.C.build(),
                                 rotors,
@@ -92,14 +95,13 @@ public class VerticaleDecodifica implements Verticale {
                         // reply to frontend with encoded char
                         String encodedText = packet.get("data").getAsString();
                         List<Enigma.Cifrazione> decoded = enigma.cifraStringa(encodedText);
-                        System.out.println(decoded);
-                        String decodedText = decoded.stream()
-                                .map(Enigma.Cifrazione::cifrato)
-                                .collect(Collectors.joining());
-
                         // TODO: discarding rotors data as we have no animations
-                        channel.write(WebSocket.encode(GSON.toJson(new DecodedText(decodedText))));
-                        break;
+                        String decodedText = GSON.toJson(new DecodedText(decoded.stream()
+                                .map(Enigma.Cifrazione::cifrato)
+                                .collect(Collectors.joining())));
+                        System.out.println(decodedText);
+                        channel.write(WebSocket.encode(decodedText));
+                    }
                 }
             } catch (JsonSyntaxException e) {
                 System.err.printf("Invalid packet: %s%n", json);
