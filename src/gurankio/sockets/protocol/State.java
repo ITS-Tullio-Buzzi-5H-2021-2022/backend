@@ -4,5 +4,5 @@ import java.util.Optional;
 
 @FunctionalInterface
 public interface State {
-    State apply(ChannelFacade channel, Optional<ServerFacade> server);
+    State apply(ChannelFacade channel, ServerFacade server);
 }

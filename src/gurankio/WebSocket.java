@@ -94,7 +94,7 @@ public class WebSocket extends SubProtocol {
         return this::handshake;
     }
 
-    private State handshake(ChannelFacade channel, Optional<ServerFacade> server) {
+    private State handshake(ChannelFacade channel, ServerFacade server) {
         Optional<ByteBuffer> buffer = channel.poll();
         if (buffer.isEmpty()) {
             channel.read();

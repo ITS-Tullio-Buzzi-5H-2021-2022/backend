@@ -1,9 +1,7 @@
 package edu.tulliobuzzi.algoritmo.componenti;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
@@ -14,11 +12,11 @@ public class Rotore implements Componente {
     private final int impostazioniAnello;
     private final Map<String, String> configurazione;
     private final Map<String, String> configurazioneInversa;
-    private final int[] posizioniTacca;
+    private final List<Integer> posizioniTacca;
     private int posizioneRotore;
 
     public Rotore(String identificatore, Map<String, String> configurazione, Map<String, String> inversa,
-                  int[] posizioniTacca, int posizioneRotore, int impostazioniAnello) {
+                  List<Integer> posizioniTacca, int posizioneRotore, int impostazioniAnello) {
         this.configurazione = configurazione;
         this.configurazioneInversa = inversa;
         this.identificatore = identificatore;
@@ -46,33 +44,28 @@ public class Rotore implements Componente {
     }
 
     private String cifrazione(String carattere, Map<String, String> configurazione) {
-        int shift = this.posizioneRotore - this.impostazioniAnello;
-
-        int inputPosition = Arrays.binarySearch(ALPHABET, carattere);
-        int shiftedInputPosition = (inputPosition + shift + ALPHABET.length) % ALPHABET.length;
-        String shiftedInput = ALPHABET[shiftedInputPosition];
-
-        String shiftedOutput = configurazione.get(shiftedInput);
-        int shiftedOutputPosition = Arrays.binarySearch(ALPHABET, shiftedOutput);
-        int outputPosition = (shiftedOutputPosition - shift + ALPHABET.length) % ALPHABET.length;
-
-        return ALPHABET[outputPosition];
+        final int shift = this.posizioneRotore - this.impostazioniAnello;
+        final int size = ALPHABET.size();
+        return ((Function<String, Integer>) (ALPHABET::indexOf))
+                .andThen(c -> (c + shift + size) % size)
+                .andThen(ALPHABET::get)
+                .andThen(configurazione::get)
+                .andThen(ALPHABET::indexOf)
+                .andThen(c -> (c - shift + size) % size)
+                .andThen(ALPHABET::get)
+                .apply(carattere);
     }
 
     public boolean isAtTacca() {
-        for (int i : this.posizioniTacca) {
-            if (this.posizioneRotore == i)
-                return true;
-        }
-        return false;
+        return this.posizioniTacca.contains(this.posizioneRotore);
     }
 
     public void ruota() {
-        this.posizioneRotore = (this.posizioneRotore + 1) % ALPHABET.length;
+        this.posizioneRotore = (this.posizioneRotore + 1) % ALPHABET.size();
     }
 
     public void ruotaIndietro() {
-        this.posizioneRotore = (this.posizioneRotore - 1 + ALPHABET.length) % ALPHABET.length;
+        this.posizioneRotore = (this.posizioneRotore - 1 + ALPHABET.size()) % ALPHABET.size();
     }
 
 }

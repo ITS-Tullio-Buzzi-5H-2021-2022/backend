@@ -15,7 +15,7 @@ public class Echo extends Protocol {
         return new WebSocket(this::echo);
     }
 
-    private State echo(ChannelFacade channel, Optional<ServerFacade> server) {
+    private State echo(ChannelFacade channel, ServerFacade server) {
         Optional<ByteBuffer> encoded = channel.poll();
         if (encoded.isPresent()) {
             String message = WebSocket.decode(encoded.get());

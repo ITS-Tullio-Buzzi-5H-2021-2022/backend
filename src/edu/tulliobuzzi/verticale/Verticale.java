@@ -1,9 +1,15 @@
 package edu.tulliobuzzi.verticale;
 
 import java.io.Closeable;
+import java.io.IOException;
 
-public interface Verticale extends Closeable {
+public interface Verticale extends Runnable, Closeable {
 
-    void send(String string) throws Exception;
+    void send(String string) throws IOException;
 
+    class NotSupportedException extends IOException {
+        public NotSupportedException() {
+            super("Cannot send from this side.");
+        }
+    }
 }
