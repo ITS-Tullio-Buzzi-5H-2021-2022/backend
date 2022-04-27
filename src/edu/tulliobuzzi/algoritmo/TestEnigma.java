@@ -5,18 +5,19 @@ import edu.tulliobuzzi.algoritmo.componenti.FabbricaRotori;
 import edu.tulliobuzzi.algoritmo.componenti.PannelloControllo;
 import edu.tulliobuzzi.algoritmo.componenti.Rotore;
 
-public class Test {
+public class TestEnigma {
 
     public static void main(String[] args) {
-        testAlgoritmo();
+        TestEnigma te = new TestEnigma();
+        te.testAlgoritmo();
+        te.testBackspace();
     }
 
-    public static void testAlgoritmo() {
+    public void testAlgoritmo() {
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < 100; i++)
             sb.append("A");
         String inputCharacter = sb.toString();
-        //inputCharacter = "ENIGMAISCOOL";
 
         Enigma enigma1 = new Enigma(
                 FabbricaRiflettori.C.build(),
@@ -28,6 +29,8 @@ public class Test {
                 new PannelloControllo("EF TI"));
 
         String res = enigma1.codifica(inputCharacter);
+        // I E
+        assert res.equals("PJRQHGTIXGPOBLYSWOMLSHZCBKLWGFQPTGJSBHCJOQZRPLSZIFBIWKGFDQLMJMXHYJXKZPQRVETSSXJUHLTNMVPWJMSORYUJNUIC");
 
         Enigma enigma2 = new Enigma(
                 FabbricaRiflettori.C.build(),
@@ -48,8 +51,7 @@ public class Test {
 
     }
 
-    public static void testBackspace() {
-
+    public void testBackspace() {
         Enigma enigma1 = new Enigma(
                 FabbricaRiflettori.C.build(),
                 new Rotore[]{
@@ -59,13 +61,16 @@ public class Test {
                 },
                 new PannelloControllo("EF TI"));
 
-        String input = enigma1.codifica("ENIGMAISCOOL");
+        String input = enigma1.codifica("ENIGMAISCOOLENIGMAISCOOLENIGMAISCOOLENIGMAISCOOLENIGMAISCOOLENIGMAISCOOL");
         System.out.println(input);
+
         String primaCodifica = enigma1.codifica("O");
         System.out.println(primaCodifica);
         enigma1.ruotaIndietro();
+
         String secondaCodifica = enigma1.codifica("O");
         System.out.println(secondaCodifica);
+
         assert(primaCodifica.equals(secondaCodifica));
     }
 
