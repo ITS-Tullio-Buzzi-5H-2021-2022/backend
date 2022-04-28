@@ -18,17 +18,12 @@ public class Main {
 
     // Trasmissione tipo:
     // Enc:
-    // {"type": "rotorFill", "rotors": ["I", "II", "III"]}
-    // risposta rotorFill?
-    //
     // {"type": "charToEncode", "data": "A" }
     // {"type": "encodingResult", "data":"B", "rotors": [true, false, true] }
     // {"type": "backspacePressed"}
     // {"type": "enterPressed"}
     //
     // Dec:
-    // invio iniziale delle informazioni sui rotori?
-    //
     // {"type": "encodedText", "data": "ILSASSOFRASSO" }
     // {"type": "textToDecode", "data": "ILSASSOFRASSO", "rotors": [{"I"}, {"II"}, {"III"}]}
     // {"type": "decodedText", "data": "SASSISTAPAZZO" }
@@ -62,13 +57,13 @@ public class Main {
 
     public static Enigma configurazioneStandard() {
         return new Enigma(
-                FabbricaRiflettori.C.build(),
+                FabbricaRiflettori.B.build(),
                 new Rotore[]{
                         FabbricaRotori.I.build(0, 0),
                         FabbricaRotori.II.build(0, 0),
                         FabbricaRotori.III.build(0, 0)
                 },
-                new PannelloControllo("EF TI")
+                new PannelloControllo("")
         );
     }
 }

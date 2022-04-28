@@ -18,4 +18,10 @@ public class Riflettore implements Componente {
         return this.configurazione.get(carattere);
     }
 
+    @Override
+    public String toString() {
+        return "Riflettore{" +
+                "configurazione=" + configurazione +
+                '}';
+    }
 }

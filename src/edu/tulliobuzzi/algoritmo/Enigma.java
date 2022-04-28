@@ -12,11 +12,11 @@ public class Enigma {
     // A B C D E F G H I J K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
     public static final List<String> ALPHABET = List.of("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""));
 
-    private final Riflettore riflettore;
+    private Riflettore riflettore;
     private Rotore rotoreSinistro;
     private Rotore rotoreCentrale;
     private Rotore rotoreDestro;
-    private final PannelloControllo pannelloControllo;
+    private PannelloControllo pannelloControllo;
 
     public Enigma(Riflettore riflettore, Rotore[] rotori, PannelloControllo pannelloControllo) {
         this.riflettore = riflettore;
@@ -26,12 +26,20 @@ public class Enigma {
         this.pannelloControllo = pannelloControllo;
     }
 
+    public void setRiflettore(Riflettore riflettore) {
+        this.riflettore = riflettore;
+    }
+
     public void setRotore(int index, Rotore rotore) {
         switch (index) {
             case 0 -> rotoreSinistro = rotore;
             case 1 -> rotoreCentrale = rotore;
             case 2 -> rotoreDestro = rotore;
         }
+    }
+
+    public void setCavi(String codifica) {
+        pannelloControllo = new PannelloControllo(codifica);
     }
 
     public Boolean[] ruota() {
@@ -101,4 +109,14 @@ public class Enigma {
                 .toList();
     }
 
+    @Override
+    public String toString() {
+        return "Enigma{" +
+                "\n\triflettore=" + riflettore +
+                ",\n\trotoreSinistro=" + rotoreSinistro +
+                ",\n\trotoreCentrale=" + rotoreCentrale +
+                ",\n\trotoreDestro=" + rotoreDestro +
+                ",\n\tpannelloControllo=" + pannelloControllo +
+                "\n}";
+    }
 }

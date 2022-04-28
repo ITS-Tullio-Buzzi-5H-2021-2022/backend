@@ -68,4 +68,15 @@ public class Rotore implements Componente {
         this.posizioneRotore = (this.posizioneRotore - 1 + ALPHABET.size()) % ALPHABET.size();
     }
 
+    @Override
+    public String toString() {
+        return "Rotore{" +
+                "identificatore='" + identificatore + '\'' +
+                ", impostazioniAnello=" + impostazioniAnello +
+                ", configurazione=" + configurazione +
+                ", configurazioneInversa=" + configurazioneInversa +
+                ", posizioniTacca=" + posizioniTacca +
+                ", posizioneRotore=" + posizioneRotore +
+                '}';
+    }
 }

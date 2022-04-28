@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class PannelloControllo implements Componente {
-    private Map<String, String> configurazione;
+    private final Map<String, String> configurazione;
 
     public PannelloControllo(Map<String, String> configurazione) {
         this.configurazione = configurazione;
@@ -63,5 +63,12 @@ public class PannelloControllo implements Componente {
     @Override
     public String avanza(String carattere) {
         return this.configurazione.get(carattere);
+    }
+
+    @Override
+    public String toString() {
+        return "PannelloControllo{" +
+                "configurazione=" + configurazione +
+                '}';
     }
 }

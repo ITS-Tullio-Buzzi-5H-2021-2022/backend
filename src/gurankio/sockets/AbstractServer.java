@@ -41,11 +41,13 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
                             handlers.computeIfPresent(h, (ignored, protocol) -> protocol.advance(h, this));
                         } else {
                             handlers.remove(h);
+                            h.close();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                         System.err.println("Removing client.");
                         handlers.remove(h);
+                        h.close();
                         break;
                     }
                 }

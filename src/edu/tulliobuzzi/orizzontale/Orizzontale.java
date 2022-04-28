@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public interface Orizzontale extends Closeable {
 
-    void send(String string) throws IOException;
+    boolean send(String string) throws IOException;
 
     class NotSupportedException extends IOException {
         public NotSupportedException() {

@@ -25,7 +25,7 @@ public class OrizzontaleDecodifica implements Orizzontale {
     }
 
     @Override
-    public void send(String string) throws NotSupportedException {
+    public boolean send(String string) throws NotSupportedException {
         throw new NotSupportedException();
     }
 
@@ -49,10 +49,12 @@ public class OrizzontaleDecodifica implements Orizzontale {
             }
 
             try {
-                String string = String.valueOf(StandardCharsets.UTF_8.decode(buffer.get()));
-                System.out.println("-> " + string);
-                Main.VERTICALE.send(string);
-            } catch (Exception e) {
+                String string = String.valueOf(StandardCharsets.UTF_8.decode(buffer.get())).trim();
+                if (!string.isEmpty()) {
+                    System.out.println("-> " + string);
+                    Main.VERTICALE.send(string);
+                }
+            } catch (IOException e) {
                 // really unlikely.
                 e.printStackTrace();
             }

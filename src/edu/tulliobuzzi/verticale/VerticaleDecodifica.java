@@ -35,13 +35,15 @@ public class VerticaleDecodifica implements Verticale {
     }
 
     @Override
-    public void send(String string) {
+    public boolean send(String string) {
         String json = GSON.toJson(new EncodedText(string));
         System.out.println(json);
 
         for (ServerFacade.Client client : server.connected()) {
             client.channel().write(WebSocket.encode(json));
         }
+
+        return server.connected().size() > 0;
     }
 
     @Override

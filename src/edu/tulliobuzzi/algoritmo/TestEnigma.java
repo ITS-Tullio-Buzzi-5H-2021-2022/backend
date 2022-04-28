@@ -17,10 +17,7 @@ public class TestEnigma {
     }
 
     public void testAlgoritmo() {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < 100; i++)
-            sb.append("A");
-        String inputCharacter = sb.toString();
+        String inputCharacter = "A".repeat(100);
 
         Enigma enigma1 = new Enigma(
                 FabbricaRiflettori.C.build(),

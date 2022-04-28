@@ -1,6 +1,7 @@
 package edu.tulliobuzzi.orizzontale;
 
 import edu.tulliobuzzi.Configuration;
+import edu.tulliobuzzi.Main;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,17 +15,22 @@ public class OrizzontaleCodifica implements Orizzontale {
     private Socket socket;
 
     public OrizzontaleCodifica() {
-        connect();
+        new Thread(this::connect).start();
     }
 
-    private synchronized void connect() {
+    private void connect() {
         int retry = 1;
         while (true) {
             try {
-                socket = new Socket();
-                socket.connect(new InetSocketAddress(Configuration.HORIZON_HOST, Configuration.HORIZON_PORT));
+                synchronized (this) {
+                    socket = new Socket();
+                    socket.connect(new InetSocketAddress(Configuration.HORIZON_HOST, Configuration.HORIZON_PORT));
+                }
                 break;
             } catch (IOException e) {
+                synchronized (this) {
+                    socket = null;
+                }
                 try {
                     System.out.printf("Retrying connection to the horizon. (%d)%n", retry);
                     Thread.onSpinWait();
@@ -37,15 +43,17 @@ public class OrizzontaleCodifica implements Orizzontale {
         System.out.println("Connected to the horizon.");
     }
 
-    public synchronized void send(String string) throws IOException {
+    public synchronized boolean send(String string) throws IOException {
+        if (socket == null) return false;
         try {
             OutputStream out = socket.getOutputStream();
             out.write(StandardCharsets.UTF_8.encode(string).array());
             out.flush();
+            return true;
         } catch (SocketException e) {
             System.out.println("Connection to the horizon failed.");
-            connect();
-            send(string);
+            new Thread(this::connect).start();
+            return false;
         }
     }
 

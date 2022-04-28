@@ -30,8 +30,14 @@ public class VerticaleCodifica implements Verticale {
     }
 
     @Override
-    public void send(String string) throws NotSupportedException {
-        throw new NotSupportedException();
+    public boolean send(String string) {
+        System.out.println(string);
+
+        for (ServerFacade.Client client : server.connected()) {
+            client.channel().write(WebSocket.encode(string));
+        }
+
+        return server.connected().size() > 0;
     }
 
     @Override
@@ -83,6 +89,12 @@ public class VerticaleCodifica implements Verticale {
                         }
                         break;
 
+                    case "syncCables":
+                        String cavi = packet.get("data").getAsString();
+                        enigma.setCavi(cavi);
+                        System.out.println(enigma);
+                        break;
+
                     case "charToEncode": // 'key pressed'
                         // send to Enigma instance and buffer
                         // reply to frontend with encoded char
@@ -104,8 +116,20 @@ public class VerticaleCodifica implements Verticale {
                             String output = builder.toString();
                             System.out.println("-> " + output);
                             builder = new StringBuilder();
-                            Main.ORIZZONTALE.send(output);
-                        } catch (Exception e) {
+                            boolean success = Main.ORIZZONTALE.send(output);
+                            channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
+                        } catch (IOException e) {
+                            // really unlikely.
+                            // TODO: feedback would be appreciated.
+                            e.printStackTrace();
+                        }
+                        break;
+
+                    case "checkHorizon":
+                        try {
+                            boolean success = Main.ORIZZONTALE.send(" ".repeat(16));
+                            channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
+                        } catch (IOException e) {
                             // really unlikely.
                             // TODO: feedback would be appreciated.
                             e.printStackTrace();
