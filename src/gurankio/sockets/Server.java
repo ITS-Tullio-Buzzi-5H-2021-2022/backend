@@ -1,5 +1,6 @@
 package gurankio.sockets;
 
+import edu.tulliobuzzi.Configuration;
 import gurankio.sockets.protocol.Protocol;
 
 import java.io.IOException;
@@ -16,11 +17,15 @@ public class Server extends AbstractServer<Handler> {
     private final ServerSocketChannel server;
     private final Selector selector;
 
-    public Server(int port, Supplier<Protocol> protocol) throws IOException {
+    public Server(String host, int port, Supplier<Protocol> protocol) throws IOException {
         super(protocol);
         server = ServerSocketChannel.open();
-        server.bind(new InetSocketAddress("localhost", port));
+        server.bind(new InetSocketAddress(host, port));
         server.configureBlocking(false);
+
+        // DEBUG
+        System.out.println(server);
+
         selector = Selector.open();
     }
 

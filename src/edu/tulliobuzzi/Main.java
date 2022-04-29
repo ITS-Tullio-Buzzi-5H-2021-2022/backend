@@ -32,6 +32,10 @@ public class Main {
     public static Verticale VERTICALE;
 
     public static void main(String[] args) throws IOException {
+        if (args.length >= 2) Configuration.LOCAL_HOST = args[1];
+        if (args.length >= 3) Configuration.PUBLIC_HOST = args[2];
+        if (args.length >= 4) Configuration.HORIZON_HOST = args[3];
+
         try {
             switch (args[0]) {
                 case "encode" -> {

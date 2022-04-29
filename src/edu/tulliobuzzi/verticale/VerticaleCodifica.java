@@ -26,7 +26,11 @@ public class VerticaleCodifica implements Verticale {
     private final Server server;
 
     public VerticaleCodifica() throws IOException {
-        server = new Server(Configuration.ENC_WEBS_PORT, Encryption::new);
+        server = new Server(
+                Configuration.LOCAL_HOST,
+                Configuration.ENC_WEBS_PORT,
+                Encryption::new
+        );
     }
 
     @Override

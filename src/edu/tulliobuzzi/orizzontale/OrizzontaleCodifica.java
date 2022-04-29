@@ -24,10 +24,20 @@ public class OrizzontaleCodifica implements Orizzontale {
             try {
                 synchronized (this) {
                     socket = new Socket();
-                    socket.connect(new InetSocketAddress(Configuration.HORIZON_HOST, Configuration.HORIZON_PORT));
+                    InetSocketAddress address = new InetSocketAddress(Configuration.HORIZON_HOST, Configuration.HORIZON_PORT);
+                    System.out.println(address);
+
+                    if (address.isUnresolved()) {
+                        System.out.println("Unresolved address. " + Configuration.HORIZON_HOST + ":" + Configuration.HORIZON_PORT);
+                        throw new IOException();
+                    }
+                    socket.connect(address);
                 }
                 break;
+
             } catch (IOException e) {
+                e.printStackTrace();
+
                 synchronized (this) {
                     socket = null;
                 }

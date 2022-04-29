@@ -31,7 +31,11 @@ public class VerticaleDecodifica implements Verticale {
     private final Server server;
 
     public VerticaleDecodifica() throws IOException {
-        server = new Server(Configuration.DEC_WEBS_PORT, Decryption::new);
+        server = new Server(
+                Configuration.LOCAL_HOST,
+                Configuration.DEC_WEBS_PORT,
+                Decryption::new
+        );
     }
 
     @Override

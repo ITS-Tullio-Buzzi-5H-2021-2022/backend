@@ -18,7 +18,11 @@ public class OrizzontaleDecodifica implements Orizzontale {
     private final Thread thread;
 
     public OrizzontaleDecodifica() throws IOException {
-        thread = new Thread(new Server(Configuration.HORIZON_PORT, ProtocolloDecodifica::new));
+        thread = new Thread(new Server(
+                Configuration.PUBLIC_HOST,
+                Configuration.HORIZON_PORT,
+                ProtocolloDecodifica::new
+        ));
         thread.setName("Horizon Server");
         thread.setDaemon(true);
         thread.start();
