@@ -7,6 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import edu.tulliobuzzi.Configuration;
 import edu.tulliobuzzi.Main;
 import edu.tulliobuzzi.algoritmo.Enigma;
+import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRotori;
 import gurankio.WebSocket;
 import gurankio.sockets.Server;
@@ -17,6 +18,7 @@ import gurankio.sockets.protocol.State;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.Optional;
 
 public class VerticaleCodifica implements Verticale {
@@ -56,8 +58,8 @@ public class VerticaleCodifica implements Verticale {
 
     static class Encryption extends Protocol {
 
-        private StringBuilder builder;
         private final Enigma enigma;
+        private StringBuilder builder;
 
         public Encryption() {
             builder = new StringBuilder();
@@ -84,7 +86,13 @@ public class VerticaleCodifica implements Verticale {
                 System.out.println(packet);
 
                 switch (packet.get("type").getAsString()) {
-                    case "syncRotor":
+                    case "syncReflector":
+                        String reflector = packet.get("data").getAsString();
+                        if (Objects.equals(reflector, "D")) reflector = "Default";
+                        enigma.setRiflettore(FabbricaRiflettori.valueOf(reflector).build());
+                        break;
+
+                    case "syncRotors":
                         JsonArray rotors = packet.get("data").getAsJsonArray();
                         for (int i = 0; i < rotors.size(); i++) {
                             if (!rotors.get(i).isJsonNull()) {
@@ -96,22 +104,23 @@ public class VerticaleCodifica implements Verticale {
                     case "syncCables":
                         String cavi = packet.get("data").getAsString();
                         enigma.setCavi(cavi);
-                        System.out.println(enigma);
                         break;
+
 
                     case "charToEncode": // 'key pressed'
                         // send to Enigma instance and buffer
                         // reply to frontend with encoded char
                         String character = packet.get("data").getAsString();
                         Enigma.Cifrazione encoded = enigma.cifra(character);
+                        // DEBUG: System.out.println(character + " -> " + enigma + "\n -> " + encoded.cifrato());
                         builder.append(encoded.cifrato());
                         channel.write(WebSocket.encode(GSON.toJson(new EncodingResult(encoded.cifrato(), encoded.ruotato()))));
                         break;
 
                     case "backspacePressed":
                         builder.deleteCharAt(builder.length() - 1);
-                        enigma.ruotaIndietro();
-                        // TODO: discard rotors data as we have no animations.
+                        Boolean[] ruotato = enigma.ruotaIndietro();
+                        channel.write(WebSocket.encode(GSON.toJson(new BackwardsRotation(ruotato))));
                         break;
 
                     case "enterPressed": // 'enter'
@@ -124,7 +133,6 @@ public class VerticaleCodifica implements Verticale {
                             channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
                         } catch (IOException e) {
                             // really unlikely.
-                            // TODO: feedback would be appreciated.
                             e.printStackTrace();
                         }
                         break;
@@ -135,7 +143,6 @@ public class VerticaleCodifica implements Verticale {
                             channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
                         } catch (IOException e) {
                             // really unlikely.
-                            // TODO: feedback would be appreciated.
                             e.printStackTrace();
                         }
                         break;
@@ -152,6 +159,12 @@ public class VerticaleCodifica implements Verticale {
     record EncodingResult(String type, String data, Boolean[] rotors) {
         EncodingResult(String data, Boolean[] rotors) {
             this("encodingResult", data, rotors);
+        }
+    }
+
+    record BackwardsRotation(String type, Boolean[] rotors) {
+        BackwardsRotation(Boolean[] rotors) {
+            this("backwardsRotation", rotors);
         }
     }
 

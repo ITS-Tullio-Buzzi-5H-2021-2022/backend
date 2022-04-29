@@ -1,5 +1,6 @@
 package edu.tulliobuzzi;
 
+import com.google.gson.Gson;
 import edu.tulliobuzzi.algoritmo.Enigma;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRotori;
@@ -28,6 +29,7 @@ public class Main {
     // {"type": "textToDecode", "data": "ILSASSOFRASSO", "rotors": [{"I"}, {"II"}, {"III"}]}
     // {"type": "decodedText", "data": "SASSISTAPAZZO" }
 
+    public static final Gson GSON = new Gson();
     public static Orizzontale ORIZZONTALE;
     public static Verticale VERTICALE;
 
@@ -64,8 +66,8 @@ public class Main {
                 FabbricaRiflettori.B.build(),
                 new Rotore[]{
                         FabbricaRotori.I.build(0, 0),
-                        FabbricaRotori.II.build(0, 0),
-                        FabbricaRotori.III.build(0, 0)
+                        FabbricaRotori.I.build(0, 0),
+                        FabbricaRotori.I.build(0, 0)
                 },
                 new PannelloControllo("")
         );

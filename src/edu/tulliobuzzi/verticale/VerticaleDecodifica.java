@@ -1,10 +1,10 @@
 package edu.tulliobuzzi.verticale;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import edu.tulliobuzzi.Configuration;
+import edu.tulliobuzzi.Main;
 import edu.tulliobuzzi.algoritmo.Enigma;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRiflettori;
 import edu.tulliobuzzi.algoritmo.componenti.FabbricaRotori;
@@ -20,13 +20,12 @@ import gurankio.sockets.protocol.State;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class VerticaleDecodifica implements Verticale {
-
-    private static final Gson GSON = new Gson();
 
     private final Server server;
 
@@ -40,11 +39,8 @@ public class VerticaleDecodifica implements Verticale {
 
     @Override
     public boolean send(String string) {
-        String json = GSON.toJson(new EncodedText(string));
-        System.out.println(json);
-
         for (ServerFacade.Client client : server.connected()) {
-            client.channel().write(WebSocket.encode(json));
+            client.channel().write(WebSocket.encode(string));
         }
 
         return server.connected().size() > 0;
@@ -81,32 +77,48 @@ public class VerticaleDecodifica implements Verticale {
             String json = WebSocket.decode(buffer.get());
 
             try {
-                JsonObject packet = GSON.fromJson(json, JsonObject.class);
+                JsonObject packet = Main.GSON.fromJson(json, JsonObject.class);
                 System.out.println(packet);
 
                 switch (packet.get("type").getAsString()) {
                     case "textToDecode" -> { // 'key pressed'
+                        String reflector = packet.get("reflector").getAsString();
+                        if (Objects.equals(reflector, "D")) reflector = "Default";
                         JsonArray rotorsData = packet.get("rotors").getAsJsonArray();
                         Rotore[] rotors = IntStream.range(0, rotorsData.size())
                                 .mapToObj(i -> rotorsData.get(i).getAsJsonObject())
                                 .map(FabbricaRotori::fromJsonObject)
                                 .toArray(Rotore[]::new);
                         Enigma enigma = new Enigma(
-                                FabbricaRiflettori.C.build(),
+                                FabbricaRiflettori.valueOf(reflector).build(),
                                 rotors,
-                                new PannelloControllo("EF TI")
+                                new PannelloControllo(packet.get("cables").getAsString())
                         );
 
                         // send to Enigma instance and buffer
                         // reply to frontend with encoded char
                         String encodedText = packet.get("data").getAsString();
                         List<Enigma.Cifrazione> decoded = enigma.cifraStringa(encodedText);
-                        // TODO: discarding rotors data as we have no animations
-                        String decodedText = GSON.toJson(new DecodedText(decoded.stream()
-                                .map(Enigma.Cifrazione::cifrato)
-                                .collect(Collectors.joining())));
+                        String decodedText = Main.GSON.toJson(new DecodedText(
+                                decoded.stream()
+                                        .map(Enigma.Cifrazione::cifrato)
+                                        .collect(Collectors.joining()),
+                                decoded.stream()
+                                        .map(Enigma.Cifrazione::ruotato)
+                                        .toArray(Boolean[][]::new)
+                        ));
                         System.out.println(decodedText);
                         channel.write(WebSocket.encode(decodedText));
+                    }
+
+                    case "checkHorizon" -> {
+                        try {
+                            boolean success = Main.ORIZZONTALE.send(" ".repeat(16));
+                            channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
+                        } catch (IOException e) {
+                            // really unlikely.
+                            e.printStackTrace();
+                        }
                     }
                 }
             } catch (JsonSyntaxException e) {
@@ -118,15 +130,9 @@ public class VerticaleDecodifica implements Verticale {
         }
     }
 
-    record EncodedText(String type, String data) {
-        EncodedText(String data) {
-            this("encodedText", data);
-        }
-    }
-
-    record DecodedText(String type, String data) {
-        DecodedText(String data) {
-            this("decodedText", data);
+    record DecodedText(String type, String data, Boolean[][] rotations) {
+        DecodedText(String data, Boolean[][] rotations) {
+            this("decodedText", data, rotations);
         }
     }
 }
