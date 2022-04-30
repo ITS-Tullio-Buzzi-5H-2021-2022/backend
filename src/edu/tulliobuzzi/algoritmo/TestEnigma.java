@@ -21,11 +21,11 @@ public class TestEnigma {
 
         Enigma enigma1 = new Enigma(
                 FabbricaRiflettori.C.build(),
-                new Rotore[]{
+                List.of(
                         FabbricaRotori.I.build(0, 1),
                         FabbricaRotori.II.build(0, 2),
                         FabbricaRotori.III.build(0, 3)
-                },
+                ),
                 new PannelloControllo("EF TI"));
 
         List<Enigma.Cifrazione> results = enigma1.cifraStringa(inputCharacter);
@@ -33,11 +33,11 @@ public class TestEnigma {
 
         Enigma enigma2 = new Enigma(
                 FabbricaRiflettori.C.build(),
-                new Rotore[]{
+                List.of(
                         FabbricaRotori.I.build(0, 1),
                         FabbricaRotori.II.build(0, 2),
                         FabbricaRotori.III.build(0, 3)
-                },
+                ),
                 new PannelloControllo("EF TI"));
 
         List<Enigma.Cifrazione> results2 = enigma2.cifraStringa(res);
@@ -56,11 +56,11 @@ public class TestEnigma {
     public void testBackspace() {
         Enigma enigma1 = new Enigma(
                 FabbricaRiflettori.C.build(),
-                new Rotore[]{
+                List.of(
                         FabbricaRotori.I.build(0, 1),
                         FabbricaRotori.II.build(0, 2),
                         FabbricaRotori.III.build(0, 3)
-                },
+                ),
                 new PannelloControllo("EF TI"));
 
         List<Enigma.Cifrazione> input = enigma1.cifraStringa("ENIGMAISCOOL");

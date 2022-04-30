@@ -85,10 +85,10 @@ public class VerticaleDecodifica implements Verticale {
                         String reflector = packet.get("reflector").getAsString();
                         if (Objects.equals(reflector, "D")) reflector = "Default";
                         JsonArray rotorsData = packet.get("rotors").getAsJsonArray();
-                        Rotore[] rotors = IntStream.range(0, rotorsData.size())
+                        List<Rotore> rotors = IntStream.range(0, rotorsData.size())
                                 .mapToObj(i -> rotorsData.get(i).getAsJsonObject())
                                 .map(FabbricaRotori::fromJsonObject)
-                                .toArray(Rotore[]::new);
+                                .toList();
                         Enigma enigma = new Enigma(
                                 FabbricaRiflettori.valueOf(reflector).build(),
                                 rotors,

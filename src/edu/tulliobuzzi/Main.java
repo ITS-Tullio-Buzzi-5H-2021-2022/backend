@@ -14,6 +14,7 @@ import edu.tulliobuzzi.verticale.VerticaleCodifica;
 import edu.tulliobuzzi.verticale.VerticaleDecodifica;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Main {
 
@@ -56,19 +57,19 @@ public class Main {
 
             VERTICALE.run();
         } finally {
-            ORIZZONTALE.close();
-            VERTICALE.close();
+            if (ORIZZONTALE != null) ORIZZONTALE.close();
+            if (VERTICALE != null) VERTICALE.close();
         }
     }
 
     public static Enigma configurazioneStandard() {
         return new Enigma(
                 FabbricaRiflettori.B.build(),
-                new Rotore[]{
+                List.of(
                         FabbricaRotori.I.build(0, 0),
                         FabbricaRotori.I.build(0, 0),
                         FabbricaRotori.I.build(0, 0)
-                },
+                ),
                 new PannelloControllo("")
         );
     }

@@ -86,28 +86,27 @@ public class VerticaleCodifica implements Verticale {
                 System.out.println(packet);
 
                 switch (packet.get("type").getAsString()) {
-                    case "syncReflector":
+                    case "syncReflector" -> {
                         String reflector = packet.get("data").getAsString();
                         if (Objects.equals(reflector, "D")) reflector = "Default";
                         enigma.setRiflettore(FabbricaRiflettori.valueOf(reflector).build());
-                        break;
+                    }
 
-                    case "syncRotors":
+                    case "syncRotors" -> {
                         JsonArray rotors = packet.get("data").getAsJsonArray();
                         for (int i = 0; i < rotors.size(); i++) {
                             if (!rotors.get(i).isJsonNull()) {
                                 enigma.setRotore(i, FabbricaRotori.fromJsonObject(rotors.get(i).getAsJsonObject()));
                             }
                         }
-                        break;
+                    }
 
-                    case "syncCables":
+                    case "syncCables" -> {
                         String cavi = packet.get("data").getAsString();
                         enigma.setCavi(cavi);
-                        break;
+                    }
 
-
-                    case "charToEncode": // 'key pressed'
+                    case "charToEncode" -> { // 'key pressed'
                         // send to Enigma instance and buffer
                         // reply to frontend with encoded char
                         String character = packet.get("data").getAsString();
@@ -115,37 +114,41 @@ public class VerticaleCodifica implements Verticale {
                         // DEBUG: System.out.println(character + " -> " + enigma + "\n -> " + encoded.cifrato());
                         builder.append(encoded.cifrato());
                         channel.write(WebSocket.encode(GSON.toJson(new EncodingResult(encoded.cifrato(), encoded.ruotato()))));
-                        break;
+                    }
 
-                    case "backspacePressed":
+                    case "backspacePressed" -> {
                         builder.deleteCharAt(builder.length() - 1);
                         Boolean[] ruotato = enigma.ruotaIndietro();
                         channel.write(WebSocket.encode(GSON.toJson(new BackwardsRotation(ruotato))));
-                        break;
+                    }
 
-                    case "enterPressed": // 'enter'
+                    case "enterPressed" -> { // 'enter'
                         // tell buffer to send message to the other machine
                         try {
                             String output = builder.toString();
                             System.out.println("-> " + output);
                             builder = new StringBuilder();
                             boolean success = Main.ORIZZONTALE.send(output);
-                            channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
+                            channel.write(WebSocket.encode("{\"type\" -> {\"checkHorizon\", \"data\" -> {%s}".formatted(String.valueOf(success))));
                         } catch (IOException e) {
                             // really unlikely.
                             e.printStackTrace();
                         }
-                        break;
+                    }
 
-                    case "checkHorizon":
+                    case "checkHorizon" -> {
                         try {
                             boolean success = Main.ORIZZONTALE.send(" ".repeat(16));
-                            channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
+                            channel.write(WebSocket.encode("{\"type\" -> {\"checkHorizon\", \"data\" -> {%s}".formatted(String.valueOf(success))));
                         } catch (IOException e) {
                             // really unlikely.
                             e.printStackTrace();
                         }
-                        break;
+                    }
+
+                    default -> {
+                        System.err.printf("Invalid packet: %s%n", json);
+                    }
                 }
             } catch (JsonSyntaxException e) {
                 System.err.printf("Invalid packet: %s%n", json);
