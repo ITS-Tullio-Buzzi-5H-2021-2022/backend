@@ -120,6 +120,10 @@ public class VerticaleDecodifica implements Verticale {
                             e.printStackTrace();
                         }
                     }
+
+                    default -> {
+                        System.err.printf("Invalid packet: %s%n", json);
+                    }
                 }
             } catch (JsonSyntaxException e) {
                 System.err.printf("Invalid packet: %s%n", json);
