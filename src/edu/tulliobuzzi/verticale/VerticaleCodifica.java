@@ -129,7 +129,7 @@ public class VerticaleCodifica implements Verticale {
                             System.out.println("-> " + output);
                             builder = new StringBuilder();
                             boolean success = Main.ORIZZONTALE.send(output);
-                            channel.write(WebSocket.encode("{\"type\" -> {\"checkHorizon\", \"data\" -> {%s}".formatted(String.valueOf(success))));
+                            channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
                         } catch (IOException e) {
                             // really unlikely.
                             e.printStackTrace();
@@ -139,7 +139,7 @@ public class VerticaleCodifica implements Verticale {
                     case "checkHorizon" -> {
                         try {
                             boolean success = Main.ORIZZONTALE.send(" ".repeat(16));
-                            channel.write(WebSocket.encode("{\"type\" -> {\"checkHorizon\", \"data\" -> {%s}".formatted(String.valueOf(success))));
+                            channel.write(WebSocket.encode("{\"type\":\"checkHorizon\", \"data\":%s}".formatted(String.valueOf(success))));
                         } catch (IOException e) {
                             // really unlikely.
                             e.printStackTrace();
