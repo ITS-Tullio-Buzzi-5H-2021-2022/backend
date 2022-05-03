@@ -4,6 +4,7 @@ import edu.tulliobuzzi.algoritmo.componenti.PannelloControllo;
 import edu.tulliobuzzi.algoritmo.componenti.Riflettore;
 import edu.tulliobuzzi.algoritmo.componenti.Rotore;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -19,7 +20,7 @@ public class Enigma {
 
     public Enigma(Riflettore riflettore, List<Rotore> rotori, PannelloControllo pannelloControllo) {
         this.riflettore = riflettore;
-        this.rotori = rotori;
+        this.rotori = new ArrayList<>(rotori);
         this.pannelloControllo = pannelloControllo;
     }
 
