@@ -21,12 +21,21 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Il compito di questa classe è quello di gestire la connessione verso il front-end
+ * creando un server e mettendosi in ascolto.
+ */
 public class VerticaleCodifica implements Verticale {
 
     private static final Gson GSON = new Gson();
 
     private final Server server;
 
+    /**
+     * Il costruttore di questa classe ha il compito di creare un server
+     * per la comunicazione con il front-end.
+     * @throws IOException
+     */
     public VerticaleCodifica() throws IOException {
         server = new Server(
                 Configuration.LOCAL_HOST,
@@ -35,6 +44,11 @@ public class VerticaleCodifica implements Verticale {
         );
     }
 
+    /**
+     * Invia una stringa al front-end.
+     * @param string La stringa da inviare al front-end.
+     * @return "true" se l'invio è andato a buon fine, "false" in caso di errore.
+     */
     @Override
     public boolean send(String string) {
         System.out.println(string);
@@ -46,32 +60,57 @@ public class VerticaleCodifica implements Verticale {
         return server.connected().size() > 0;
     }
 
+    /**
+     * Avvia il server.
+     */
     @Override
     public void run() {
         server.run();
     }
 
+    /**
+     * Chiude il server.
+     * @throws IOException
+     */
     @Override
     public void close() throws IOException {
         server.close();
     }
 
+    /**
+     * Questa classe contiene il codice che il server deve eseguire.
+     */
     static class Encryption extends Protocol {
 
         private final Enigma enigma;
         private StringBuilder builder;
 
+        /**
+         * Crea un oggetto "Encryption".
+         */
         public Encryption() {
             builder = new StringBuilder();
             enigma = Main.configurazioneStandard();
             System.out.println("Front-end connected.");
         }
 
+        /**
+         * Crea un oggetto "WebSocket", ovvero una state machine che esegue
+         * sempre il metodo "receive()" di questa classe.
+         * @return Un oggetto "State".
+         */
         @Override
         protected State connected() {
             return new WebSocket(this::receive);
         }
 
+        /**
+         * Questo metodo legge dal canale creato con il front-end.
+         * Sulla base del tipo di messaggio inviato esegue l'operazione relativa.
+         * @param channel Il canale con cui operare.
+         * @param server L'oggetto server su cui viene eseguito questo codice.
+         * @return Un oggetto "State".
+         */
         private State receive(ChannelFacade channel, ServerFacade server) {
             Optional<ByteBuffer> buffer = channel.poll();
             if (buffer.isEmpty()) {
@@ -159,13 +198,28 @@ public class VerticaleCodifica implements Verticale {
         }
     }
 
+    /**
+     * Tipo di pacchetto contenente le informazioni sui rotori e la stringa codificata.
+     */
     record EncodingResult(String type, String data, Boolean[] rotors) {
+        /**
+         * Crea un record contenente le informazioni da inviare all'altro host.
+         * @param data Stringa codificata.
+         * @param rotors Rotori.
+         */
         EncodingResult(String data, Boolean[] rotors) {
             this("encodingResult", data, rotors);
         }
     }
 
+    /**
+     * Tipo di pacchetto contenente le informazioni sui rotori.
+     */
     record BackwardsRotation(String type, Boolean[] rotors) {
+        /**
+         * Crea un record contenente il settaggio dei rotori.
+         * @param rotors Rotori.
+         */
         BackwardsRotation(Boolean[] rotors) {
             this("backwardsRotation", rotors);
         }
