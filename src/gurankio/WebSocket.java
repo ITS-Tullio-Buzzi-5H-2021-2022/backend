@@ -5,6 +5,7 @@ import gurankio.sockets.protocol.ServerFacade;
 import gurankio.sockets.protocol.State;
 import gurankio.sockets.protocol.SubProtocol;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -35,8 +36,11 @@ public class WebSocket extends SubProtocol {
         }
     }
 
+    private StringBuilder request;
+
     public WebSocket(State then) {
         super(then);
+        request = new StringBuilder();
     }
 
     /**
@@ -45,7 +49,7 @@ public class WebSocket extends SubProtocol {
      * @param encoded the received buffer
      * @return the decoded contents a string
      */
-    public static String decode(ByteBuffer encoded) {
+    public static String decode(ByteBuffer encoded) throws ShortPacketException {
         // System.out.println(Arrays.toString(encoded.array()));
         byte first = encoded.get();
         boolean fin = (first & 0b10000000) != 0;
@@ -74,7 +78,12 @@ public class WebSocket extends SubProtocol {
         // System.out.println(encoded);
 
         ByteBuffer decoded = ByteBuffer.allocate(lenght);
-        for (int i = 0; i < lenght; i++) decoded.put((byte) (encoded.get() ^ key[i & 0x3]));
+        try {
+            for (int i = 0; i < lenght; i++) decoded.put((byte) (encoded.get() ^ key[i & 0x3]));
+        } catch (BufferUnderflowException e) {
+            throw new ShortPacketException(lenght);
+        }
+
         return StandardCharsets.UTF_8.decode(decoded.flip()).toString();
     }
 
@@ -121,9 +130,15 @@ public class WebSocket extends SubProtocol {
             return this::handshake;
         }
 
-        Optional<String> optionalKey = StandardCharsets.UTF_8.decode(buffer.get())
-                .toString()
-                .lines()
+        request.append(StandardCharsets.UTF_8.decode(buffer.get()));
+        if (!request.toString().endsWith("\n")) {
+            channel.read();
+            return this::handshake;
+        }
+        String decoded = request.toString();
+        request = new StringBuilder();
+
+        Optional<String> optionalKey = decoded.lines()
                 .map(String::strip)
                 .map(websocketKey::matcher)
                 .filter(Matcher::matches)
@@ -152,5 +167,21 @@ public class WebSocket extends SubProtocol {
         return this::then;
     }
 
+    /**
+     * Exception that's raised if the decoded packet buffer is too little.
+     * Knows how long it should be.
+     */
+    public static class ShortPacketException extends Exception {
+
+        private final long expectedLength;
+
+        public ShortPacketException(long expectedLength) {
+            this.expectedLength = expectedLength;
+        }
+
+        public long getExpectedLength() {
+            return expectedLength;
+        }
+    }
 
 }

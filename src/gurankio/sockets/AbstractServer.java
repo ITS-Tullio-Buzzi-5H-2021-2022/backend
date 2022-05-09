@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Common code for server implementations.
@@ -60,8 +59,8 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
      * Utility method to advance a handler state if it exists otherwise create it.
      * @param h the handler for which to advance the state
      */
-    private void compute(H h) {
-        handlers.compute(h, (i, p) -> p == null ? protocol.get() : p.advance(h, this));
+    private void advance(H h) {
+        handlers.computeIfPresent(h, (i, p) -> p.advance(h, this));
     }
 
     /**
@@ -75,11 +74,14 @@ public abstract class AbstractServer<H extends AbstractHandler> implements Serve
     public void run() {
         try (this) {
             while (open()) {
-                accept().ifPresent(this::compute);
+                accept().ifPresent(h -> {
+                    handlers.put(h, protocol.get());
+                    advance(h);
+                });
                 for (H h : select()) {
                     try {
                         if (h.compute()) {
-                            compute(h);
+                            advance(h);
                         } else {
                             handlers.remove(h);
                             h.close();

@@ -19,6 +19,7 @@ import gurankio.sockets.protocol.State;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,6 +59,8 @@ public class VerticaleDecodifica implements Verticale {
 
     static class Decryption extends Protocol {
 
+        private ByteBuffer larger;
+
         public Decryption() {
             System.out.println("Front-end connected.");
         }
@@ -74,9 +77,11 @@ public class VerticaleDecodifica implements Verticale {
                 return this::receive;
             }
 
-            String json = WebSocket.decode(buffer.get());
+            ByteBuffer raw = larger == null ? buffer.get() : larger.put(buffer.get()).flip();
 
             try {
+                String json = WebSocket.decode(raw);
+                larger = null;
                 JsonObject packet = Main.GSON.fromJson(json, JsonObject.class);
                 System.out.println(packet);
 
@@ -122,11 +127,13 @@ public class VerticaleDecodifica implements Verticale {
                     }
 
                     default -> {
-                        System.err.printf("Invalid packet: %s%n", json);
+                        System.err.printf("Unknown packet: %s%n", json);
                     }
                 }
-            } catch (JsonSyntaxException e) {
-                System.err.printf("Invalid packet: %s%n", json);
+            } catch (WebSocket.ShortPacketException e) {
+                larger = ByteBuffer.allocate((int) (e.getExpectedLength()) + 512).put(raw.rewind());
+            }  catch (JsonSyntaxException e) {
+                System.err.printf("Invalid data: %s%n", Arrays.toString(raw.array()));
             }
 
             channel.read();

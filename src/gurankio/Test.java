@@ -29,7 +29,12 @@ public class Test {
         private State echo(ChannelFacade channel, ServerFacade server) {
             Optional<ByteBuffer> encoded = channel.poll();
             if (encoded.isPresent()) {
-                String message = WebSocket.decode(encoded.get());
+                String message = null;
+                try {
+                    message = WebSocket.decode(encoded.get());
+                } catch (WebSocket.ShortPacketException e) {
+                    e.printStackTrace();
+                }
                 System.out.println("ECHO: " + message);
                 channel.write(WebSocket.encode(message));
             }

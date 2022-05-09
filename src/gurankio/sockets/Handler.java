@@ -34,7 +34,7 @@ public class Handler extends AbstractHandler {
     @Override
     boolean compute() throws IOException {
         if (key.isValid() && key.isReadable()) {
-            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            ByteBuffer buffer = ByteBuffer.allocate(16384);
             int bytes = channel.read(buffer);
             if (bytes == -1) {
                 close();
