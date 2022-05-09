@@ -9,6 +9,12 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
 
+/**
+ * An implementation of a handler which uses a {@link SelectionKey} to handle multiple clients on a single thread.
+ *
+ * @author Jacopo Del Granchio
+ * @see Server
+ */
 public class Handler extends AbstractHandler {
 
     private final SocketChannel channel;

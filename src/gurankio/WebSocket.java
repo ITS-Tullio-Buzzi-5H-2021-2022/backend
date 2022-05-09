@@ -14,13 +14,18 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ * A partial implementation of WebSockets as per RFC6455.
+ *
+ * @author Jacopo Del Granchio
+ */
 public class WebSocket extends SubProtocol {
 
     private static final Pattern websocketKey = Pattern.compile("Sec-WebSocket-Key: (.+)");
     private static final Base64.Encoder base64 = Base64.getEncoder();
     private static MessageDigest sha1;
 
+    // This thing smells bad.
     static {
         try {
             sha1 = MessageDigest.getInstance("SHA-1");
@@ -34,6 +39,12 @@ public class WebSocket extends SubProtocol {
         super(then);
     }
 
+    /**
+     * Decodes a WebSocket packet in a string.
+     *
+     * @param encoded the received buffer
+     * @return the decoded contents a string
+     */
     public static String decode(ByteBuffer encoded) {
         // System.out.println(Arrays.toString(encoded.array()));
         byte first = encoded.get();
@@ -67,6 +78,12 @@ public class WebSocket extends SubProtocol {
         return StandardCharsets.UTF_8.decode(decoded.flip()).toString();
     }
 
+    /**
+     * Encodes a string as a valid WebSocket packet.
+     *
+     * @param message the message to encode
+     * @return the encoded packet bytes
+     */
     public static ByteBuffer encode(String message) {
         ByteBuffer payload = StandardCharsets.UTF_8.encode(message);
         ByteBuffer encoded = ByteBuffer.allocate(16 + payload.limit());
@@ -94,6 +111,9 @@ public class WebSocket extends SubProtocol {
         return this::handshake;
     }
 
+    /**
+     * Handles the initial handshake and returns control to the higher level protocol.
+     */
     private State handshake(ChannelFacade channel, ServerFacade server) {
         Optional<ByteBuffer> buffer = channel.poll();
         if (buffer.isEmpty()) {

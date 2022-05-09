@@ -1,6 +1,5 @@
 package gurankio.sockets;
 
-import edu.tulliobuzzi.Configuration;
 import gurankio.sockets.protocol.Protocol;
 
 import java.io.IOException;
@@ -12,6 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * An implementation of a server which uses a {@link Selector} to handle multiple clients on a single thread.
+ *
+ * @author Jacopo Del Granchio
+ */
 public class Server extends AbstractServer<Handler> {
 
     private final ServerSocketChannel server;
@@ -41,6 +45,7 @@ public class Server extends AbstractServer<Handler> {
         else return Optional.empty();
     }
 
+    @Override
     protected List<Handler> select() throws IOException {
         selector.select(250);
         List<Handler> selected = selector.selectedKeys()
