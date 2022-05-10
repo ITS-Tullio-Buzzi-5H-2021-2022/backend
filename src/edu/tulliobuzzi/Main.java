@@ -17,23 +17,17 @@ import java.io.IOException;
 import java.util.List;
 
 public class Main {
-
-    // Trasmissione tipo:
-    // Enc:
-    // {"type": "charToEncode", "data": "A" }
-    // {"type": "encodingResult", "data":"B", "rotors": [true, false, true] }
-    // {"type": "backspacePressed"}
-    // {"type": "enterPressed"}
-    //
-    // Dec:
-    // {"type": "encodedText", "data": "ILSASSOFRASSO" }
-    // {"type": "textToDecode", "data": "ILSASSOFRASSO", "rotors": [{"I"}, {"II"}, {"III"}]}
-    // {"type": "decodedText", "data": "SASSISTAPAZZO" }
-
+    
     public static final Gson GSON = new Gson();
     public static Orizzontale ORIZZONTALE;
     public static Verticale VERTICALE;
 
+    /**
+     * Avvio del programma. Costruisce la macchina sfruttando l'idea
+     * alla base del design pattern "Abstract Factory".
+     * @param args Argomenti di passare al programma.
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         if (args.length >= 2) Configuration.LOCAL_HOST = args[1];
         if (args.length >= 3) Configuration.PUBLIC_HOST = args[2];
@@ -62,6 +56,10 @@ public class Main {
         }
     }
 
+    /**
+     * Crea un configurazione standard della macchina Enigma.
+     * @return Un oggetto "Enigma".
+     */
     public static Enigma configurazioneStandard() {
         return new Enigma(
                 FabbricaRiflettori.B.build(),

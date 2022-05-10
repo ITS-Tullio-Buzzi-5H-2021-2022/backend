@@ -30,6 +30,11 @@ public class VerticaleDecodifica implements Verticale {
 
     private final Server server;
 
+    /**
+     * Avvia un server a cui il front-end dovrà connettersi per leggere
+     * le informazioni decodificate.
+     * @throws IOException
+     */
     public VerticaleDecodifica() throws IOException {
         server = new Server(
                 Configuration.LOCAL_HOST,
@@ -38,6 +43,11 @@ public class VerticaleDecodifica implements Verticale {
         );
     }
 
+    /**
+     * Invia una stringa al front-end.
+     * @param string La stringa da inviare al front-end.
+     * @return "true" se l'invio è andato a buon fine, "false" in caso di errore.
+     */
     @Override
     public boolean send(String string) {
         for (ServerFacade.Client client : server.connected()) {
@@ -47,29 +57,54 @@ public class VerticaleDecodifica implements Verticale {
         return server.connected().size() > 0;
     }
 
+    /**
+     * Avvia il server.
+     */
     @Override
     public void run() {
         server.run();
     }
 
+    /**
+     * Chiude il server.
+     * @throws IOException
+     */
     @Override
     public void close() throws IOException {
         server.close();
     }
 
+    /**
+     * Questa classe contiene il codice che il server deve eseguire.
+     */
     static class Decryption extends Protocol {
 
         private ByteBuffer larger;
 
+        /**
+         * Crea un oggetto "Decryption".
+         */
         public Decryption() {
             System.out.println("Front-end connected.");
         }
 
+        /**
+         * Crea un oggetto "WebSocket", ovvero una state machine che esegue sempre il metodo
+         * "receive()" di questa classe.
+         * @return Un oggetto "State".
+         */
         @Override
         protected State connected() {
             return new WebSocket(this::receive);
         }
 
+        /**
+         * Questo metodo si occupa di leggere dal canale il testo, decodificarlo,
+         * e solo alla fine inviarlo al front-end.
+         * @param channel Il canale con cui operare.
+         * @param server L'oggetto server su cui viene eseguito questo codice.
+         * @return Un oggetto "State".
+         */
         private State receive(ChannelFacade channel, ServerFacade server) {
             Optional<ByteBuffer> buffer = channel.poll();
             if (buffer.isEmpty()) {
@@ -141,7 +176,15 @@ public class VerticaleDecodifica implements Verticale {
         }
     }
 
+    /**
+     * Tipo di pacchetto contenente il testo decodificato.
+     */
     record DecodedText(String type, String data, Boolean[][] rotations) {
+        /**
+         * Crea un record contenente il testo decodificato e le informazioni sui rotori.
+         * @param data Testo decodificato.
+         * @param rotations Rotori.
+         */
         DecodedText(String data, Boolean[][] rotations) {
             this("decodedText", data, rotations);
         }
