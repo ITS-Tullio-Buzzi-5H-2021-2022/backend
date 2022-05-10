@@ -18,12 +18,21 @@ public class Enigma {
     private List<Rotore> rotori;
     private PannelloControllo pannelloControllo;
 
+    /**
+     * Costruttore per la creazione della macchina
+     * @param riflettore riflettore utilizzato
+     * @param rotori rotori utilizzati da Sinistra verso Destra
+     * @param pannelloControllo configurazione utilizzata del pannello di controllo
+     */
     public Enigma(Riflettore riflettore, List<Rotore> rotori, PannelloControllo pannelloControllo) {
         this.riflettore = riflettore;
         this.rotori = new ArrayList<>(rotori);
         this.pannelloControllo = pannelloControllo;
     }
 
+    /**
+     * Metodi setter
+     */
     public void setRiflettore(Riflettore riflettore) {
         this.riflettore = riflettore;
     }
@@ -36,6 +45,10 @@ public class Enigma {
         pannelloControllo = new PannelloControllo(codifica);
     }
 
+    /**
+     * Rotazione dei rotori
+     * @return array dei rotori ruotati nella forma [bool, bool, bool], un bool per ogni rotore
+     */
     public Boolean[] ruota() {
         Boolean[] ruotato = Stream.generate(() -> false).limit(rotori.size()).toArray(Boolean[]::new);
         ruotato[ruotato.length - 1] = true;
@@ -48,6 +61,10 @@ public class Enigma {
         return ruotato;
     }
 
+    /**
+     * Rotazione inversa dei rotori, utilizzato dal backspace
+     * @return array dei rotori ruotati nella forma [bool, bool, bool], un bool per ogni rotore
+     */
     public Boolean[] ruotaIndietro() {
         Boolean[] ruotato = Stream.generate(() -> false).limit(rotori.size()).toArray(Boolean[]::new);
         ruotato[ruotato.length - 1] = true;
@@ -60,6 +77,12 @@ public class Enigma {
         return ruotato;
     }
 
+    /**
+     * Metodo per la cifrazione dei caratteri
+     * Implementa la logica della macchina Enigma
+     * @param carattere da cifrare
+     * @return oggetto Cifrazione
+     */
     public Cifrazione cifra(String carattere) {
         Boolean[] ruotato = this.ruota();
 
@@ -85,6 +108,11 @@ public class Enigma {
         return new Cifrazione(carattere, ruotato);
     }
 
+    /**
+     * Metodo per la cifrazione di una stringa
+     * @param input stringa da codificare
+     * @return Lista di oggetti Cifrazione per ogni lettera cifrata
+     */
     public List<Cifrazione> cifraStringa(String input) {
         return Arrays.stream(input.split(""))
                 .map(this::cifra)
@@ -100,9 +128,12 @@ public class Enigma {
                 "\n}";
     }
 
+    /**
+     * Record Cifrazione
+     * @param cifrato carattere codificato
+     * @param ruotato array dei rotori ruotati nella forma [bool, bool, bool], un bool per ogni rotore
+     */
     public record Cifrazione(String cifrato, Boolean[] ruotato) {
-        // Array dei booleani: {Sinistro?, Centrale?, Destro?}
-
         @Override
         public String toString() {
             return "Cifrazione{" +

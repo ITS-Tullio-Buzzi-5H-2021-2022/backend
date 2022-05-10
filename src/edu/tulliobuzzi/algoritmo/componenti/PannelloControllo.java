@@ -7,17 +7,32 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+/**
+ * Implementazione del Pannello di Controllo
+ */
 public class PannelloControllo implements Componente {
     private final Map<String, String> configurazione;
 
+    /**
+     * Costruttore del Pannello di Controllo
+     * @param configurazione configurazione iniziale sotto forma di mappa
+     */
     public PannelloControllo(Map<String, String> configurazione) {
         this.configurazione = configurazione;
     }
 
+    /**
+     * Costruttore del Pannello di Controllo
+     * @param configurazione configurazione iniziale sotto forma di stringa (vedi convertiStringa)
+     */
     public PannelloControllo(String configurazione) {
         this.configurazione = convertiStringa(configurazione);
     }
 
+    /**
+     * La configurazione viene inizializzata associando ogni lettera con se stessa
+     * @return la mappa che associa ogni lettera con la sua traduzione
+     */
     private static Map<String, String> getConfigurazioneInizializzata() {
         TreeMap<String, String> configurazione = new TreeMap<>();
         for (String character : Enigma.ALPHABET) {
@@ -26,6 +41,11 @@ public class PannelloControllo implements Componente {
         return configurazione;
     }
 
+    /**
+     * Parsing della stringa in input rappresentante la configurazione
+     * @param codifica nella forma "AB CD" = A->B, C->D
+     * @return configurazione aggiornata
+     */
     public static Map<String, String> convertiStringa(String codifica) {
         codifica = codifica.toUpperCase();
         Map<String, String> configurazione = PannelloControllo.getConfigurazioneInizializzata();

@@ -5,10 +5,17 @@ import java.util.TreeMap;
 
 import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
+/**
+ * Implementazione di un Riflettore
+ */
 public class Riflettore implements Componente {
 
-    private final Map<String, String> configurazione;
+    private final Map<String, String> configurazione; // configurazione del riflettore (lettera->codifica)
 
+    /**
+     * Costruttore del Riflettore
+     * @param configurazione configurazione iniziale sotto forma di mappa
+     */
     public Riflettore(Map<String, String> configurazione) {
         this.configurazione = configurazione;
     }

@@ -5,7 +5,13 @@ import java.util.TreeMap;
 
 import static edu.tulliobuzzi.algoritmo.Enigma.ALPHABET;
 
+/**
+ * Implementazione del design pattern Factory per la creazione di Riflettori
+ */
 public enum FabbricaRiflettori {
+    /**
+     * Lista dei riflettori standard di Enigma
+     */
     B(convertiStringa("YRUHQSLDPXNGOKMIEBFZCWVJAT")),
     C(convertiStringa("FVPJIAOYEDRZXWGCTKUQSBNMHL")),
     Default(convertiStringa("ZYXWVUTSRQPONMLKJIHGFEDCBA"));
@@ -16,6 +22,11 @@ public enum FabbricaRiflettori {
         this.configurazione = configurazione;
     }
 
+    /**
+     * Conversione della stringa in input rappresentante la configurazione
+     * @param codifica nella forma "HDFG" = A->H B->D C->F D->G
+     * @return la configurazione
+     */
     private static Map<String, String> convertiStringa(String codifica) {
         TreeMap<String, String> configurazione = new TreeMap<>();
         for (int i = 0; i < ALPHABET.size(); i++) {
@@ -24,6 +35,10 @@ public enum FabbricaRiflettori {
         return configurazione;
     }
 
+    /**
+     * Effettiva creazione del riflettore
+     * @return Riflettore creato
+     */
     public Riflettore build() {
         return new Riflettore(this.configurazione);
     }
